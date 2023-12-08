@@ -1,0 +1,63 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.hdvideo.allformats.player'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.hdvideo.allformats.player"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+        setProperty("archivesBaseName", "HD_Video_Player_All_Formats_" + versionCode + "(" + versionName + ")")
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        applicationVariants.all {
+            variant ->
+                variant.outputs.each {
+                    output ->
+                        def name = "HD_Video_Player_All_Formats_${variant.versionCode}_${variant.versionName}.apk"
+                        output.outputFileName = name
+                }
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+
+    buildFeatures {
+        dataBinding true
+        viewBinding true
+        buildConfig = true
+    }
+}
+
+dependencies {
+
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.10.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
+    implementation 'com.intuit.sdp:sdp-android:1.1.0'
+
+    //Lottie
+    implementation 'com.airbnb.android:lottie:6.1.0'
+
+    implementation 'com.google.android.play:review:2.0.1'
+
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.25'
+    api 'com.google.code.gson:gson:2.10.1'
+
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
+}

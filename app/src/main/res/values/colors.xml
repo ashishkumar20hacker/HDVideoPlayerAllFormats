@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="bg">#01163F</color>
+    <color name="dark_blue">#3B89EA</color>
+    <color name="light_blue">#4DE8F5</color>
+    <color name="theme_two_one">#FFD355</color>
+    <color name="theme_two_two">#FF4493</color>
+    <color name="theme_three_one">#EEF14A</color>
+    <color name="theme_three_two">#39B76A</color>
+    <color name="theme_four_one">#FFD346</color>
+    <color name="theme_four_two">#FF994C</color>
+    <color name="theme_five_one">#A273FF</color>
+    <color name="theme_five_two">#4A2CD9</color>
+</resources>

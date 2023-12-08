@@ -1,0 +1,48 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.HDVideoPlayerAllFormats" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="light_color">@color/light_blue</item>
+        <item name="dark_color">@color/dark_blue</item>
+    </style>
+    <style name="Base.Theme.HDVideoPlayerAllFormats.Second" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="light_color">@color/theme_two_one</item>
+        <item name="dark_color">@color/theme_two_two</item>
+    </style>
+    <style name="Base.Theme.HDVideoPlayerAllFormats.Third" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="light_color">@color/theme_three_one</item>
+        <item name="dark_color">@color/theme_three_two</item>
+    </style>
+    <style name="Base.Theme.HDVideoPlayerAllFormats.Fourth" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="light_color">@color/theme_four_one</item>
+        <item name="dark_color">@color/theme_four_two</item>
+    </style>
+    <style name="Base.Theme.HDVideoPlayerAllFormats.Fifth" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="light_color">@color/theme_five_one</item>
+        <item name="dark_color">@color/theme_five_two</item>
+    </style>
+
+    <style name="Theme.HDVideoPlayerAllFormats" parent="Base.Theme.HDVideoPlayerAllFormats" />
+
+    <style name="SheetDialog">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:colorBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.5</item>
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:layout_centerInParent">true</item>
+        <item name="android:layout_marginHorizontal" tools:targetApi="o">@dimen/_5sdp</item>
+    </style>
+
+</resources>

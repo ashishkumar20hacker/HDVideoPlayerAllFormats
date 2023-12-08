@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="AppStyles">
+        <attr name="light_color" type="color"/>
+        <attr name="dark_color" type="color"/>
+    </declare-styleable>
+</resources>

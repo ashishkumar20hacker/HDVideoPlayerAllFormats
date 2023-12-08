@@ -1,0 +1,57 @@
+<resources>
+    <string name="app_name">HD Video Player All Formats</string>
+    <string name="title_1">Video Player</string>
+    <string name="title_2">Music Player</string>
+    <string name="desc_1">Enjoy Seamless playback with advanced features with our video player!</string>
+    <string name="desc_2">Groove your favorite music and enjoy with our music player!</string>
+    <string name="next">Next</string>
+    <string name="t_o_u" translatable="false">The application is notifying you to the presence of an app that provides several services that are essential information for safer and more efficient use.</string>
+    <string name="by_pressing_the_accept_button_i_declare_i_have_read_and_accepted_the_following_condition_of_use" translatable="false">By pressing the Accept button, I declare I have read and accepted the following condition of use</string>
+    <string name="if_we_find_the_app_is_being_used_outside_its_terms_of_use_we_may_restrict_access_to_it" translatable="false">If we find the app is being used outside its terms of use, we may restrict access to it.</string>
+    <string name="any_type_of_modification_to_the_app_or_its_components_is_not_allowed" translatable="false">Any type of modification to the app or its components is not allowed.</string>
+    <string name="privacy_policy_may_be_updated_from_time_to_time_for_any_reason_we_will_notify_you_of_any_changes_to_our_privacy_policy_by_posting_the_new_privacy_policy_here" translatable="false">Privacy Policy may be updated from time to time for any reason. We will notify you of any changes to our Privacy Policy by posting the new Privacy Policy here.</string>
+    <string name="we_do_not_share_any_kind_of_your_personal_data_with_third_parties" translatable="false">We do not share any kind of your Personal Data with third parties.</string>
+    <string name="you_can_find_out_more_information_by_clicking_on_the" translatable="false">You can find out more information by clicking on the</string>
+    <string name="tc" translatable="false">
+    Posting rules you should be taking care of before you start interaction on our website/application: HD Video Player All Formats
+    \n
+    \nAssuring you carry the rights and eligibility to post any form of content you are about to share. We never permit nudism on application/website.
+    \n
+    \nWe won\'t allow posting of sexually explicit content, sexually explicit text, images, or audio content depicting extreme sexual acts such as acts of posting Content that drives traffic to pornographic online services. Please note that we may make exceptions based on artistic, educational, historical, documentary, or scientific nature, or where there are other considerable benefits to the public at large.
+    \n
+    \nWe don\'t permit encouragement or applaud towards terrorism, formed crime scenes or hate association groups on our application/website. Attempting to sell sexual services or weapons and harmful drugs are also not permitted. We will remove reasonable threats of severity, hate arousing content/speech and the intentionally pointing of private individuals. We do not permit attacks/abuse based on skin colour, native, sex, gender, gender identity, sexual orientation, religion, disability or disease.
+    \n
+    \nGraphic violence is not allowed and we may remove videos or images of intense, graphic violence to make sure our application/website stays appropriate for everyone.
+    \n
+    \nIf anyone or any account is spotted doing the above restricted activities they can be booked and arrested for the same. If viewers spot any violations of the above rules they have the right to report the content to us by using the report feature given in our application/ website.
+        </string>
+    <string name="terms_of_use">Terms of Use</string>
+    <string name="i_agree">I Agree</string>
+    <string name="following_link">Following link : </string>
+    <string name="terms_and_condition">Terms and conditions</string>
+    <string name="terms_and_conditions"><u>Terms and conditions</u></string>
+    <string name="pp_p"><u>Privacy policy</u></string>
+    <string name="accept">Accept</string>
+    <string name="permission_required">Permission Required</string>
+    <string name="perm_storage_txt"><font color="#FFFFFF" size="16"><b>External Storage</b></font>\n<font color="#FFFFFF" size="14">Allow to access photos and media
+on your device.</font></string>
+    <string name="grant_permission">Grant Permission</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="rate_us">Rate us!</string>
+    <string name="do_you_want_to_really_exit">Do you want to really exit ?</string>
+    <string name="exit">Exit</string>
+    <string name="settings">Settings</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="rate_us_">Rate us</string>
+    <string name="share_app">Share App</string>
+    <string name="themes">Themes</string>
+    <string name="apply">Apply</string>
+    <string name="wa_status">WA Status</string>
+    <string name="videos">Videos</string>
+    <string name="saved">Saved</string>
+    <string name="status_not_available">Status not Available</string>
+    <string name="no_videos_here">No Videos here</string>
+    <string name="due_to_system_restriction_we_need_you_to_authorize_statuses_to_download_files">Due to system restriction, we need you to authorize .Statuses to download files.</string>
+    <string name="continue_">Continue</string>
+</resources>

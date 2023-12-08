@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg"
+    tools:context=".Activity.TermsConditions">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        android:layout_marginTop="@dimen/_25sdp">
+
+        <ImageView
+            android:id="@+id/backbt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/_8sdp"
+            android:layout_centerVertical="true"
+            android:src="@drawable/arrowright"
+            android:rotation="180" />
+
+        <TextView
+            android:id="@+id/title_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/terms_and_condition"
+            android:layout_centerInParent="true"
+            android:textColor="@color/white"
+            android:fontFamily="@font/poppins"
+            android:textSize="@dimen/_14sdp"
+            android:textStyle="bold" />
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:scrollbars="none">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/_10sdp"
+            android:justificationMode="inter_word"
+            android:paddingBottom="@dimen/_15sdp"
+            android:text="@string/tc"
+            android:fontFamily="@font/poppins"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
+
+    </ScrollView>
+
+    <!--<com.adsmodule.api.adsModule.interfaces.CustomView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:adType="medium"
+        app:textColor="@color/black" />-->
+
+</LinearLayout>

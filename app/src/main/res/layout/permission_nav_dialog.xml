@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="@dimen/_10sdp"
+        app:cardElevation="@dimen/_3sdp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/btnbg"
+            android:backgroundTint="#27395C">
+
+            <ImageView
+                android:id="@+id/tv_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/close"
+                android:padding="@dimen/_8sdp"
+                android:elevation="@dimen/_8sdp"
+                android:visibility="gone"
+                android:layout_alignParentEnd="true"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/btnbg"
+                android:backgroundTint="#27395C"
+                android:padding="@dimen/_25sdp">
+
+                <TextView
+                    android:id="@+id/txt_getstatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:fontFamily="@font/poppins"
+                    android:text="@string/permission_required"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_13sdp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/txt_step1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/txt_getstatus"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="@dimen/_8sdp"
+                    android:text="@string/due_to_system_restriction_we_need_you_to_authorize_statuses_to_download_files"
+                    android:textColor="#FFFFFF" />
+
+                <ImageView
+                    android:id="@+id/iv_guide"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/txt_step1"
+                    android:layout_marginTop="@dimen/_12sdp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/permission_img" />
+
+                <LinearLayout
+                    android:id="@+id/ll_clicks"
+                    android:layout_width="@dimen/_150sdp"
+                    android:layout_height="45dp"
+                    android:layout_centerHorizontal="true"
+                    android:layout_below="@+id/iv_guide"
+                    android:layout_marginTop="@dimen/_12sdp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tv_getit"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/btnbg"
+                        android:fontFamily="@font/poppins"
+                        android:gravity="center"
+                        android:text="@string/continue_"
+                        android:textColor="@color/white"
+                        android:textSize="16sp" />
+
+                </LinearLayout>
+            </RelativeLayout>
+
+        </RelativeLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</layout>
