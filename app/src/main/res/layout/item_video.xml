@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+    
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="@dimen/_90sdp"
+        android:layout_height="@dimen/_60sdp"
+        android:layout_margin="@dimen/_5sdp">
+
+        <ImageView
+            android:id="@+id/preview_iv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/play"
+            android:layout_gravity="end|bottom"
+            android:elevation="@dimen/_5sdp"
+            android:padding="@dimen/_2sdp"/>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins"
+            android:text="@string/wa_status"
+            android:paddingHorizontal="@dimen/_2sdp"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:singleLine="true"
+            android:maxLines="1"
+            android:layout_marginBottom="@dimen/_8sdp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/size"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins"
+            android:text="@string/wa_status"
+            android:paddingHorizontal="@dimen/_2sdp"
+            android:textColor="@color/white"
+            android:textSize="10sp" />
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/more"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/more"
+        android:padding="@dimen/_15sdp"
+        android:layout_gravity="center"/>
+
+</LinearLayout>

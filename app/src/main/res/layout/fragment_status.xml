@@ -63,6 +63,9 @@
             android:id="@+id/status_rv"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginHorizontal="@dimen/_5sdp"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:paddingBottom="@dimen/_85sdp"
             android:visibility="gone"/>
 
         <TextView
@@ -83,6 +86,9 @@
             android:id="@+id/saved_rv"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginHorizontal="@dimen/_5sdp"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:paddingBottom="@dimen/_85sdp"
             android:visibility="gone"/>
 
         <TextView

@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.hdvideo.allformats.player.R;
+import com.hdvideo.allformats.player.databinding.FragmentHomeBinding;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -57,10 +58,16 @@ public class HomeFragment extends Fragment {
         }
     }
 
+    FragmentHomeBinding binding;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false);
+        binding = FragmentHomeBinding.inflate(getLayoutInflater());
+
+        
+
+        return binding.getRoot();
     }
 }

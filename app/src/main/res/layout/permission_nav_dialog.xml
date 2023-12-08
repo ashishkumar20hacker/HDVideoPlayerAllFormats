@@ -26,7 +26,6 @@
                 android:src="@drawable/close"
                 android:padding="@dimen/_8sdp"
                 android:elevation="@dimen/_8sdp"
-                android:visibility="gone"
                 android:layout_alignParentEnd="true"/>
 
             <RelativeLayout

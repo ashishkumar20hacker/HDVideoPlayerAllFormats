@@ -3,6 +3,8 @@ package com.hdvideo.allformats.player.Extras;
 
 import static android.os.Build.VERSION.SDK_INT;
 
+import static com.hdvideo.allformats.player.Extras.Constants.downloadWhatsAppDir;
+
 import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -36,6 +38,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
@@ -48,6 +51,8 @@ import com.google.android.play.core.review.ReviewInfo;
 import com.google.android.play.core.review.ReviewManager;
 import com.google.android.play.core.review.ReviewManagerFactory;
 import com.google.android.play.core.review.testing.FakeReviewManager;
+import com.hdvideo.allformats.player.Models.AudioInfo;
+import com.hdvideo.allformats.player.Models.VideoInfo;
 import com.hdvideo.allformats.player.R;
 
 import org.json.JSONArray;
@@ -59,6 +64,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -107,6 +113,94 @@ public class Utils {
             return false;
         }
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public static boolean copyFileInSavedDir(Context context, String sourceFile, boolean isWApp) {
+
+        String finalPath = getDir(isWApp).getAbsolutePath();
+
+        String pathWithName = finalPath + File.separator + new File(sourceFile).getName();
+        Uri destUri = Uri.fromFile(new File(pathWithName));
+
+        System.out.println("pathWithName" + pathWithName);
+        InputStream is = null;
+        OutputStream os = null;
+        try {
+            Uri uri = Uri.parse(sourceFile);
+            is = context.getContentResolver().openInputStream(uri);
+            os = context.getContentResolver().openOutputStream(destUri, "w");
+
+            byte[] buffer = new byte[1024];
+
+            int length;
+            while ((length = is.read(buffer)) > 0)
+                os.write(buffer, 0, length);
+
+            is.close();
+            os.flush();
+            os.close();
+
+            Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+            intent.setData(destUri);
+            context.sendBroadcast(intent);
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+    }
+    static File getDir(boolean isWApp) {
+
+        File rootFile = downloadWhatsAppDir;
+        if (!isWApp) {
+//            rootFile = downloadWABusiDir;
+        }
+        rootFile.mkdirs();
+
+        return rootFile;
+
+    }
+
+    public static List<VideoInfo> getVideosFromFolder(Context context, String folderPath) {
+        List<VideoInfo> videoInfoList = new ArrayList<>();
+
+        String[] projection = {
+                MediaStore.Video.Media.DISPLAY_NAME,
+                MediaStore.Video.Media.SIZE,
+                MediaStore.Video.Media.DATA
+        };
+        String selection = MediaStore.Video.Media.DATA + " like ?";
+        String[] selectionArgs = new String[]{"%" + folderPath + "%"};
+        String sortOrder = null;
+
+        try (Cursor cursor = context.getContentResolver().query(
+                MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                projection,
+                selection,
+                selectionArgs,
+                sortOrder)) {
+
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    String videoName = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DISPLAY_NAME));
+                    long videoSizeInBytes = cursor.getLong(cursor.getColumnIndex(MediaStore.Video.Media.SIZE));
+                    String videoPath = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA));
+
+                    // Convert bytes to megabytes
+                    double videoSizeInMB = (videoSizeInBytes / (1024.0 * 1024.0));
+
+                    VideoInfo videoInfo = new VideoInfo(videoName, videoSizeInMB, videoPath);
+                    videoInfoList.add(videoInfo);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return videoInfoList;
+    }
+
 
     public static ColorStateList setColorFromAttribute(Context context, int attrColor, int color) {
         TypedValue typedValue = new TypedValue();
@@ -826,30 +920,42 @@ public class Utils {
     }
 
 
-    public static List<String> getAllAudioFiles(Context context) {
-        List<String> audioFiles = new ArrayList<>();
+    public static List<AudioInfo> getAllAudioFiles(Context context) {
+        List<AudioInfo> audioFiles = new ArrayList<>();
 
         // Define the columns you want to retrieve
         String[] projection = {
                 MediaStore.Audio.Media._ID,
-                MediaStore.Audio.Media.DATA
+                MediaStore.Audio.Media.DATA,
+                MediaStore.Audio.Media.DISPLAY_NAME,
+                MediaStore.Audio.Media.SIZE
         };
 
         // Query the external audio content URI
-        Uri audioUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        ContentResolver contentResolver = context.getContentResolver();
-
         Cursor cursor = null;
         try {
-            cursor = contentResolver.query(audioUri, projection, null, null, null);
+            cursor = context.getContentResolver().query(
+                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                    projection,
+                    null,
+                    null,
+                    null);
+
             if (cursor != null && cursor.moveToFirst()) {
                 do {
                     String audioPath = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
-                    audioFiles.add(audioPath);
+                    String audioName = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
+                    long audioSizeInBytes = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.SIZE));
+
+                    // Convert bytes to megabytes
+                    double audioSizeInMB = (audioSizeInBytes / (1024.0 * 1024.0));
+
+                    AudioInfo audioInfo = new AudioInfo(audioPath, audioName, audioSizeInMB);
+                    audioFiles.add(audioInfo);
                 } while (cursor.moveToNext());
             }
         } catch (Exception e) {
-            Log.e("AudioUtils", "Error retrieving audio files: " + e.getMessage());
+            e.printStackTrace();
         } finally {
             if (cursor != null) {
                 cursor.close();
@@ -858,11 +964,15 @@ public class Utils {
 
         return audioFiles;
     }
+    public static List<VideoInfo> getVideoList(Context context) {
+        List<VideoInfo> videoInfoList = new ArrayList<>();
 
-    public static List<String> getVideoList(Context context) {
-        List<String> videoPaths = new ArrayList<>();
-
-        String[] projection = {MediaStore.Video.Media._ID, MediaStore.Video.Media.DATA};
+        String[] projection = {
+                MediaStore.Video.Media._ID,
+                MediaStore.Video.Media.DATA,
+                MediaStore.Video.Media.DISPLAY_NAME,
+                MediaStore.Video.Media.SIZE
+        };
         String selection = null;
         String[] selectionArgs = null;
         String sortOrder = null;
@@ -877,14 +987,21 @@ public class Utils {
             if (cursor != null) {
                 while (cursor.moveToNext()) {
                     String videoPath = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA));
-                    videoPaths.add(videoPath);
+                    String videoName = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DISPLAY_NAME));
+                    long videoSizeInBytes = cursor.getLong(cursor.getColumnIndex(MediaStore.Video.Media.SIZE));
+
+                    // Convert bytes to megabytes
+                    double videoSizeInMB = (videoSizeInBytes / (1024.0 * 1024.0));
+
+                    VideoInfo videoInfo = new VideoInfo(videoName, videoSizeInMB,videoPath);
+                    videoInfoList.add(videoInfo);
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return videoPaths;
+        return videoInfoList;
     }
 
 
