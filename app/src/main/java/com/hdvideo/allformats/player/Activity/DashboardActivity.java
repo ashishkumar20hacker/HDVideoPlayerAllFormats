@@ -50,7 +50,7 @@ public class DashboardActivity extends AppCompatActivity {
 
         setTheme(preferences.getInt(Constants.THEME_ID, R.style.Base_Theme_HDVideoPlayerAllFormats));
 
-        changeFragment(new HomeFragment());
+        switchUi(2);
 
         binding.statusNav.setOnClickListener(new View.OnClickListener() {
             @Override

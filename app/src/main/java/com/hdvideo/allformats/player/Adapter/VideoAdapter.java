@@ -32,7 +32,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
     public void onBindViewHolder(@NonNull VideoAdapter.ViewHolder holder, int position) {
         Glide.with(activity).load(videosInFolder.get(position).getPath()).into(holder.binding.previewIv);
         holder.binding.name.setText(videosInFolder.get(position).getName());
-        holder.binding.size.setText(videosInFolder.get(position).getSizeInMB() + "");
+        holder.binding.size.setText(videosInFolder.get(position).getSizeInMB() + " MB");
     }
 
     @Override

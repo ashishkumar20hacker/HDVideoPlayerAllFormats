@@ -4,7 +4,13 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.hdvideo.allformats.player.Models.AudioInfo;
 import com.hdvideo.allformats.player.R;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class SharePreferences {
@@ -54,9 +60,9 @@ public class SharePreferences {
     public boolean getBoolean(String key, boolean value) {
         return sharedPreferences.getBoolean(key, value);
     }
-
-    /*// Store a list of DataModels in SharedPreferences
-    public void putDataModelList(List<AdsResponseModel.ExtraDataFieldDTO.VoiceEffect> voiceEffectList) {
+/*
+    // Store a list of DataModels in SharedPreferences
+    public void putDataModelList(List<AudioInfo> voiceEffectList) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         String dataModelListJson = gson.toJson(voiceEffectList);
         editor.putString(LIST_KEY, dataModelListJson);
@@ -64,31 +70,15 @@ public class SharePreferences {
     }
 
     // Retrieve the list of DataModels from SharedPreferences
-    public List<AdsResponseModel.ExtraDataFieldDTO.VoiceEffect> getDataModelList() {
+    public List<AudioInfo> getDataModelList() {
         String dataModelListJson = sharedPreferences.getString(LIST_KEY, null);
         if (dataModelListJson != null) {
-            Type type = new TypeToken<ArrayList<AdsResponseModel.ExtraDataFieldDTO.VoiceEffect>>() {
+            Type type = new TypeToken<ArrayList<AudioInfo>>() {
             }.getType();
             return gson.fromJson(dataModelListJson, type);
         } else {
             return new ArrayList<>();
         }
     }*/
-
-    public String getPREFERENCE_whatsapp() {
-        return getString(PREFERENCE_whatsapp);
-    }
-
-    public String getPREFERENCE_whatsappbusiness() {
-        return getString(PREFERENCE_whatsappbusiness);
-    }
-
-    public void setPREFERENCE_whatsappbusiness(String string) {
-        putString(PREFERENCE_whatsappbusiness, string);
-    }
-
-    public void setPREFERENCE_whatsapp(String toString) {
-        putString(PREFERENCE_whatsapp, toString);
-    }
 
 }

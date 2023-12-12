@@ -231,14 +231,18 @@ public class StatusFragment extends Fragment {
     }
 
     private DocumentFile[] getFromSdcard() {
-        String treeUri = preferences.getString(Constants.IS_WHATSAPP_GRANTED);
-        DocumentFile fromTreeUri = DocumentFile.fromTreeUri(requireContext().getApplicationContext(), Uri.parse(treeUri));
-        if (fromTreeUri != null && fromTreeUri.exists() && fromTreeUri.isDirectory()
-                && fromTreeUri.canRead() && fromTreeUri.canWrite()) {
+        try {
+            String treeUri = preferences.getString(Constants.IS_WHATSAPP_GRANTED);
+            DocumentFile fromTreeUri = DocumentFile.fromTreeUri(requireContext().getApplicationContext(), Uri.parse(treeUri));
+            if (fromTreeUri != null && fromTreeUri.exists() && fromTreeUri.isDirectory()
+                    && fromTreeUri.canRead() && fromTreeUri.canWrite()) {
 
-            return fromTreeUri.listFiles();
-        } else {
-            return null;
+                return fromTreeUri.listFiles();
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -276,7 +280,11 @@ public class StatusFragment extends Fragment {
             //TODO Status
             binding.noSaved.setVisibility(View.GONE);
             binding.savedRv.setVisibility(View.GONE);
-            populateGrid();
+            if (preferences.getString(Constants.IS_WHATSAPP_GRANTED).isEmpty()) {
+                permissionDialog();
+            } else {
+                populateGrid();
+            }
         } else {
             //TODO Saved
             binding.noStatus.setVisibility(View.GONE);

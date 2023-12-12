@@ -97,7 +97,6 @@ public class ThemesFragment extends Fragment {
         themesAdapter = new ThemesAdapter(themesModalList);
         binding.viewPager.setAdapter(themesAdapter);
 
-
         binding.viewPager.setClipToPadding(false);
         binding.viewPager.setClipChildren(false);
         binding.viewPager.setOffscreenPageLimit(5);

@@ -56,4 +56,22 @@ on your device.</font></string>
     <string name="continue_">Continue</string>
     <string name="songs">Songs</string>
     <string name="search_here">Search here..</string>
+    <string name="folders">Folders</string>
+    <string name="playlist">Playlist</string>
+    <string name="all_videos">All Videos</string>
+    <string name="_0_videos">0 Videos</string>
+    <string name="recently_played">Recently\nPlayed</string>
+    <string name="favorites">Favorites</string>
+    <string name="all_songs">All Songs</string>
+    <string name="album">Album</string>
+    <string name="artist">Artist</string>
+    <string name="_0_songs">0 Songs</string>
+    <string name="new_playlist">New Playlist</string>
+    <string name="create_new_playlist">Create New Playlist</string>
+    <string name="enter_playlist_s_name">Enter Playlist’s Name</string>
+    <string name="create">Create</string>
+    <string name="name">Name</string>
+    <string name="sort_by">Sort By</string>
+    <string name="size">Size</string>
+    <string name="date">Date</string>
 </resources>

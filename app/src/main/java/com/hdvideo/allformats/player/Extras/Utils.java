@@ -66,8 +66,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 
 public class Utils {
 
@@ -919,7 +923,36 @@ public class Utils {
                 .setInterpolator(new AccelerateDecelerateInterpolator());
     }
 
+    public static Map<String, Integer> getVideoFoldersWithCount(Context context) {
+        Map<String, Integer> videoFoldersWithCount = new HashMap<>();
 
+        String[] projection = {MediaStore.Video.Media.DATA};
+        Uri videoUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+
+        Cursor cursor = null;
+        try {
+            cursor = context.getContentResolver().query(videoUri, projection, null, null, null);
+
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    String videoPath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA));
+                    String folderPath = videoPath.substring(0, videoPath.lastIndexOf("/")); // Extract folder path
+
+                    // Increment count for each folder
+                    int count = videoFoldersWithCount.getOrDefault(folderPath, 0);
+                    videoFoldersWithCount.put(folderPath, count + 1);
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return videoFoldersWithCount;
+    }
     public static List<AudioInfo> getAllAudioFiles(Context context) {
         List<AudioInfo> audioFiles = new ArrayList<>();
 
@@ -949,8 +982,9 @@ public class Utils {
 
                     // Convert bytes to megabytes
                     double audioSizeInMB = (audioSizeInBytes / (1024.0 * 1024.0));
+                    double audioSizeInKB = (audioSizeInBytes / 1024.0);
 
-                    AudioInfo audioInfo = new AudioInfo(audioPath, audioName, audioSizeInMB);
+                    AudioInfo audioInfo = new AudioInfo(audioPath, audioName, roundToTwoDecimals(audioSizeInKB));
                     audioFiles.add(audioInfo);
                 } while (cursor.moveToNext());
             }
@@ -963,6 +997,135 @@ public class Utils {
         }
 
         return audioFiles;
+    }
+    public static Map<String, Integer> getAudioAlbumsWithCount(Context context) {
+        Map<String, Integer> audioAlbumsWithCount = new HashMap<>();
+
+        Cursor cursor = null;
+        try {
+            Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+            String[] projection = {MediaStore.Audio.Media.ALBUM};
+
+            cursor = context.getContentResolver().query(
+                    uri,
+                    projection,
+                    null,
+                    null,
+                    MediaStore.Audio.Media.ALBUM + " ASC");
+
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    String albumName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM));
+                    int songCount = getSongCountForAlbum(context, albumName);
+
+                    audioAlbumsWithCount.put(albumName, songCount);
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return audioAlbumsWithCount;
+    }
+
+    private static int getSongCountForAlbum(Context context, String albumName) {
+        int songCount = 0;
+
+        Cursor cursor = null;
+        try {
+            Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+            String[] projection = {MediaStore.Audio.Media._ID};
+            String selection = MediaStore.Audio.Media.ALBUM + "=?";
+            String[] selectionArgs = {albumName};
+
+            cursor = context.getContentResolver().query(
+                    uri,
+                    projection,
+                    selection,
+                    selectionArgs,
+                    null);
+
+            if (cursor != null) {
+                songCount = cursor.getCount();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return songCount;
+    }
+
+    public static Map<String, Integer> getArtistsWithSongCount(Context context) {
+        Map<String, Integer> artistsWithSongCount = new HashMap<>();
+
+        Cursor cursor = null;
+        try {
+            Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+            String[] projection = {MediaStore.Audio.Media.ARTIST};
+
+            cursor = context.getContentResolver().query(
+                    uri,
+                    projection,
+                    null,
+                    null,
+                    MediaStore.Audio.Media.ARTIST + " ASC");
+
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    String artistName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
+                    int songCount = getSongCountForArtist(context, artistName);
+
+                    artistsWithSongCount.put(artistName, songCount);
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return artistsWithSongCount;
+    }
+
+    private static int getSongCountForArtist(Context context, String artistName) {
+        int songCount = 0;
+
+        Cursor cursor = null;
+        try {
+            Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+            String[] projection = {MediaStore.Audio.Media._ID};
+            String selection = MediaStore.Audio.Media.ARTIST + "=?";
+            String[] selectionArgs = {artistName};
+
+            cursor = context.getContentResolver().query(
+                    uri,
+                    projection,
+                    selection,
+                    selectionArgs,
+                    null);
+
+            if (cursor != null) {
+                songCount = cursor.getCount();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return songCount;
     }
     public static List<VideoInfo> getVideoList(Context context) {
         List<VideoInfo> videoInfoList = new ArrayList<>();
@@ -993,7 +1156,7 @@ public class Utils {
                     // Convert bytes to megabytes
                     double videoSizeInMB = (videoSizeInBytes / (1024.0 * 1024.0));
 
-                    VideoInfo videoInfo = new VideoInfo(videoName, videoSizeInMB,videoPath);
+                    VideoInfo videoInfo = new VideoInfo(videoName, roundToTwoDecimals(videoSizeInMB),videoPath);
                     videoInfoList.add(videoInfo);
                 }
             }
@@ -1004,6 +1167,9 @@ public class Utils {
         return videoInfoList;
     }
 
+    public static double roundToTwoDecimals(double value) {
+        return Math.round(value * 100.0) / 100.0;
+    }
 
     public static LiveData<List<String>> getAllVideosFromFolder(Context context) {
         MutableLiveData<List<String>> data = new MutableLiveData<>();
