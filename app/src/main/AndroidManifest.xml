@@ -2,9 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>
-    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
 
     <queries>
         <package android:name="com.whatsapp" />
@@ -22,6 +22,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.HDVideoPlayerAllFormats"
         tools:targetApi="31">
+        <activity
+            android:name=".Activity.ResultActivity"
+            android:exported="false" />
         <activity
             android:name=".Activity.PermissionsActivity"
             android:exported="false"

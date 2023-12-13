@@ -255,13 +255,6 @@ public class StatusFragment extends Fragment {
         }
     }
 
-    loadDataAsync async;
-
-    public void populateGrid() {
-        async = new loadDataAsync();
-        async.execute();
-    }
-
 
     private void switchUi(int i) {
         if (i == 0) {
@@ -306,6 +299,12 @@ public class StatusFragment extends Fragment {
         }
     }
 
+    loadDataAsync async;
+
+    public void populateGrid() {
+        async = new loadDataAsync();
+        async.execute();
+    }
 
     class loadDataAsync extends AsyncTask<Void, Void, Void> {
         DocumentFile[] allFiles;

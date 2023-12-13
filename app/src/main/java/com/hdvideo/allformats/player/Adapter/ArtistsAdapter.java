@@ -19,10 +19,12 @@ public class ArtistsAdapter extends RecyclerView.Adapter<ArtistsAdapter.ViewHold
     private List<String> artistNames;
     private Map<String, Integer> artistSongsCount;
     private LayoutInflater inflater;
+    private OnArtistClickListener onArtistClickListener;
 
-    public ArtistsAdapter(Context context, Map<String, Integer> artistSongsCount) {
+    public ArtistsAdapter(Context context, Map<String, Integer> artistSongsCount, OnArtistClickListener onArtistClickListener) {
         this.artistNames = new ArrayList<>(artistSongsCount.keySet());
         this.artistSongsCount = artistSongsCount;
+        this.onArtistClickListener = onArtistClickListener;
         this.inflater = LayoutInflater.from(context);
     }
 
@@ -40,6 +42,13 @@ public class ArtistsAdapter extends RecyclerView.Adapter<ArtistsAdapter.ViewHold
 
         holder.artistNameTextView.setText(artistName);
         holder.songCountTextView.setText("Songs: " + songCount);
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onArtistClickListener.onArtistClick(artistName);
+            }
+        });
     }
 
     @Override
@@ -56,5 +65,9 @@ public class ArtistsAdapter extends RecyclerView.Adapter<ArtistsAdapter.ViewHold
             artistNameTextView = itemView.findViewById(R.id.artist_name_textview);
             songCountTextView = itemView.findViewById(R.id.song_count_textview);
         }
+    }
+
+    public interface OnArtistClickListener {
+        void onArtistClick(String artistName);
     }
 }

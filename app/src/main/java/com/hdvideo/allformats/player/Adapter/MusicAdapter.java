@@ -2,13 +2,16 @@ package com.hdvideo.allformats.player.Adapter;
 
 import android.app.Activity;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.hdvideo.allformats.player.Extras.SharePreferences;
 import com.hdvideo.allformats.player.Models.AudioInfo;
+import com.hdvideo.allformats.player.Models.VideoInfo;
 import com.hdvideo.allformats.player.databinding.ItemMusicBinding;
 
 import java.util.List;
@@ -16,9 +19,11 @@ import java.util.List;
 public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.ViewHolder> {
     Activity activity;
     List<AudioInfo> videosInFolder;
+    SharePreferences preferences;
     public MusicAdapter(Activity activity, List<AudioInfo> videosInFolder) {
         this.activity = activity;
         this.videosInFolder = videosInFolder;
+        preferences = new SharePreferences(activity);
     }
 
     @NonNull
@@ -32,6 +37,39 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.ViewHolder> 
     public void onBindViewHolder(@NonNull MusicAdapter.ViewHolder holder, int position) {
         holder.binding.name.setText(videosInFolder.get(position).getName());
         holder.binding.size.setText(videosInFolder.get(position).getSizeInMB() + " KB");
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                List<AudioInfo> list = preferences.getAudioDataModelList();
+                if (list.size() < 15) {
+                    AudioInfo newDataModel = videosInFolder.get(position);
+                    list.add(newDataModel);
+                    preferences.putAudioDataModelList(list);
+                } else {
+                    //TODO PERFORM FIFO
+                    int elementsToRemove = list.size() - 14; // Number of elements to remove (15 - 1)
+                    list.subList(0, elementsToRemove).clear(); // Removes the oldest elements
+                    AudioInfo newDataModel = videosInFolder.get(position);
+                    list.add(newDataModel);
+                    preferences.putAudioDataModelList(list);
+                }
+               /* List<AudioInfo> list = preferences.getFavAudioDataModelList();
+                if (list.size() < 15) {
+                    AudioInfo newDataModel = videosInFolder.get(position);
+                    list.add(newDataModel);
+                    preferences.putFavAudioDataModelList(list);
+                } else {
+                    //TODO PERFORM FIFO
+                    int elementsToRemove = list.size() - 14; // Number of elements to remove (15 - 1)
+                    list.subList(0, elementsToRemove).clear(); // Removes the oldest elements
+                    AudioInfo newDataModel = videosInFolder.get(position);
+                    list.add(newDataModel);
+                    preferences.putFavAudioDataModelList(list);
+                }*/
+            }
+        });
+
     }
 
     @Override

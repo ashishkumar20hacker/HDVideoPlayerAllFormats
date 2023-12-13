@@ -1,6 +1,7 @@
 package com.hdvideo.allformats.player.Fragments;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 
@@ -17,13 +18,26 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.material.card.MaterialCardView;
+import com.hdvideo.allformats.player.Activity.ResultActivity;
 import com.hdvideo.allformats.player.Adapter.ArtistsAdapter;
 import com.hdvideo.allformats.player.Adapter.AudioAlbumsAdapter;
+import com.hdvideo.allformats.player.Adapter.AudioPlayListAdapter;
 import com.hdvideo.allformats.player.Adapter.MusicAdapter;
+import com.hdvideo.allformats.player.Adapter.PlayListAdapter;
 import com.hdvideo.allformats.player.Adapter.VideoAdapter;
+import com.hdvideo.allformats.player.Extras.AppAsyncTask;
+import com.hdvideo.allformats.player.Extras.AppInterfaces;
+import com.hdvideo.allformats.player.Extras.SharePreferences;
 import com.hdvideo.allformats.player.Extras.Utils;
+import com.hdvideo.allformats.player.Models.AudioInfo;
+import com.hdvideo.allformats.player.Models.VideoInfo;
 import com.hdvideo.allformats.player.R;
 import com.hdvideo.allformats.player.databinding.FragmentMusicBinding;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -73,6 +87,7 @@ public class MusicFragment extends Fragment {
     }
 
     FragmentMusicBinding binding;
+    SharePreferences preferences;
     int sort_by = 0;
 
     @Override
@@ -80,17 +95,14 @@ public class MusicFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentMusicBinding.inflate(getLayoutInflater());
+        preferences = new SharePreferences(requireContext());
+        binding.allSongsRv.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false));
+        binding.albumRv.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false));
+        binding.artistRv.setLayoutManager(new GridLayoutManager(requireContext(), 3));
+        binding.playlistRv.setLayoutManager(new GridLayoutManager(requireContext(), 2));
 
-        binding.allSongsRv.setLayoutManager(new LinearLayoutManager(requireContext(),LinearLayoutManager.VERTICAL,false));
-        binding.albumRv.setLayoutManager(new LinearLayoutManager(requireContext(),LinearLayoutManager.VERTICAL,false));
-        binding.artistRv.setLayoutManager(new GridLayoutManager(requireContext(),3));
 
-        MusicAdapter adapter = new MusicAdapter(requireActivity(), Utils.getAllAudioFiles(requireContext()));
-        binding.allSongsRv.setAdapter(adapter);
-        AudioAlbumsAdapter albumsAdapter = new AudioAlbumsAdapter(requireActivity(), Utils.getAudioAlbumsWithCount(requireContext()));
-        binding.albumRv.setAdapter(albumsAdapter);
-        ArtistsAdapter artistsAdapter = new ArtistsAdapter(requireActivity(), Utils.getArtistsWithSongCount(requireContext()));
-        binding.artistRv.setAdapter(artistsAdapter);
+        switchUi(0);
 
         binding.allSongsTab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -142,7 +154,81 @@ public class MusicFragment extends Fragment {
         });
 
 
+        binding.recentsBt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(requireActivity(), ResultActivity.class).putExtra("type",7).putExtra("name",getString(R.string.recently_played)));
+            }
+        });
+
+        binding.favoritesBt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(requireActivity(), ResultActivity.class).putExtra("type",8).putExtra("name",getString(R.string.favorites)));
+            }
+        });
+
+
         return binding.getRoot();
+    }
+
+    private void setAdapterForAlbum() {
+        AppAsyncTask.Albums albums = new AppAsyncTask.Albums(requireActivity(), new AppInterfaces.AlbumsListener() {
+            @Override
+            public void getAlbums(Map<String, Integer> albumList) {
+                AudioAlbumsAdapter albumsAdapter = new AudioAlbumsAdapter(requireActivity(), albumList, new AudioAlbumsAdapter.OnAlbumClickListener() {
+                    @Override
+                    public void onAlbumClick(String albumName) {
+                        startActivity(new Intent(requireActivity(), ResultActivity.class).putExtra("type", 1).putExtra("name", albumName));
+                    }
+                });
+                binding.albumRv.setAdapter(albumsAdapter);
+            }
+        });
+        albums.execute();
+    }
+
+    private void setAdapterForPlaylist() {
+        AudioPlayListAdapter adapter = new AudioPlayListAdapter(new AudioPlayListAdapter.AudioPlayListClickListener() {
+            @Override
+            public void onDelete() {
+                setAdapterForPlaylist();
+            }
+
+            @Override
+            public void onItemClick(String playlistName) {
+                startActivity(new Intent(requireActivity(), ResultActivity.class).putExtra("type",6).putExtra("name", playlistName));
+            }
+        });
+        binding.playlistRv.setAdapter(adapter);
+        adapter.submitList(preferences.getAudioPlaylists());
+    }
+
+    private void setAdapterForArtist() {
+        AppAsyncTask.Artists artists = new AppAsyncTask.Artists(requireActivity(), new AppInterfaces.ArtistsListener() {
+            @Override
+            public void getArtists(Map<String, Integer> artistsList) {
+                ArtistsAdapter artistsAdapter = new ArtistsAdapter(requireActivity(), artistsList, new ArtistsAdapter.OnArtistClickListener() {
+                    @Override
+                    public void onArtistClick(String artistName) {
+                        startActivity(new Intent(requireActivity(), ResultActivity.class).putExtra("type", 2).putExtra("name", artistName));
+                    }
+                });
+                binding.artistRv.setAdapter(artistsAdapter);
+            }
+        });
+        artists.execute();
+    }
+
+    private void setAdapterForAll() {
+        AppAsyncTask.AllSongs allSongs = new AppAsyncTask.AllSongs(requireActivity(), new AppInterfaces.AllAudiosListener() {
+            @Override
+            public void getAllAudios(List<AudioInfo> allAudioList) {
+                MusicAdapter adapter = new MusicAdapter(requireActivity(), allAudioList);
+                binding.allSongsRv.setAdapter(adapter);
+            }
+        });
+        allSongs.execute();
     }
 
     private void sortDialog() {
@@ -212,9 +298,9 @@ public class MusicFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
-                if (sort_by == 0){
+                if (sort_by == 0) {
                     //TODO sort by name
-                } else if (sort_by == 1){
+                } else if (sort_by == 1) {
                     //TODO sort by date
                 } else {
                     //TODO sort by size
@@ -224,6 +310,7 @@ public class MusicFragment extends Fragment {
 
         dialog.show();
     }
+
     private void createPlaylistDialog() {
         Dialog dialog = new Dialog(requireActivity(), R.style.SheetDialog);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -246,10 +333,12 @@ public class MusicFragment extends Fragment {
         createBt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (nameEd.getText().toString().isEmpty()){
+                if (nameEd.getText().toString().isEmpty()) {
                     nameEd.setError("Please enter playlist name");
                     nameEd.requestFocus();
                 } else {
+                    preferences.createEmptyAudioPlaylist(nameEd.getText().toString().trim());
+                    setAdapterForPlaylist();
                     dialog.dismiss();
                 }
             }
@@ -274,22 +363,31 @@ public class MusicFragment extends Fragment {
                 binding.allSongsTab.setBackgroundResource(R.drawable.tab_selected);
                 binding.allSongsRv.setVisibility(View.VISIBLE);
                 binding.sort.setVisibility(View.VISIBLE);
+                setAdapterForAll();
                 break;
             case 1:
                 binding.playlistTab.setBackgroundResource(R.drawable.tab_selected);
                 binding.playlistLl.setVisibility(View.VISIBLE);
                 binding.add.setVisibility(View.VISIBLE);
-                binding.countAll.setText(Utils.getAllAudioFiles(requireContext()).size() + " Songs");
+                ExecutorService service = Executors.newSingleThreadExecutor();
+                service.execute(() -> {
+                    binding.countAll.setText(Utils.getAllAudioFiles(requireContext()).size() + " Songs");
+                    binding.countRecents.setText(preferences.getAudioDataModelList().size() + " Songs");
+                    binding.countFav.setText(preferences.getFavAudioDataModelList().size() + " Songs");
+                });
+                setAdapterForPlaylist();
                 break;
             case 2:
                 binding.albumTab.setBackgroundResource(R.drawable.tab_selected);
                 binding.albumRv.setVisibility(View.VISIBLE);
                 binding.sort.setVisibility(View.VISIBLE);
+                setAdapterForAlbum();
                 break;
             case 3:
                 binding.artistTab.setBackgroundResource(R.drawable.tab_selected);
                 binding.artistRv.setVisibility(View.VISIBLE);
                 binding.sort.setVisibility(View.VISIBLE);
+                setAdapterForArtist();
                 break;
         }
     }

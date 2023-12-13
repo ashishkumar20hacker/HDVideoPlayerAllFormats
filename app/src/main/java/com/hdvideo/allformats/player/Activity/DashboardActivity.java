@@ -168,20 +168,20 @@ public class DashboardActivity extends AppCompatActivity {
                 changeFragment(new StatusFragment());
                 break;
             case 1 :
+                changeFragment(new MusicFragment());
                 binding.settingsNav.setImageResource(R.drawable.nav_unselected_settings);
                 binding.themesNav.setImageResource(R.drawable.nav_unselected_themes);
                 binding.homeNav.setImageResource(R.drawable.nav_unselected_home);
                 binding.statusNav.setImageResource(R.drawable.nav_unselected_status);
                 binding.musicNav.setImageResource(R.drawable.nav_selected_music);
-                changeFragment(new MusicFragment());
                 break;
             case 2 :
+                changeFragment(new HomeFragment());
                 binding.settingsNav.setImageResource(R.drawable.nav_unselected_settings);
                 binding.themesNav.setImageResource(R.drawable.nav_unselected_themes);
                 binding.musicNav.setImageResource(R.drawable.nav_unselected_music);
                 binding.statusNav.setImageResource(R.drawable.nav_unselected_status);
                 binding.homeNav.setImageResource(R.drawable.nav_selected_home);
-                changeFragment(new HomeFragment());
                 break;
             case 3 :
                 binding.settingsNav.setImageResource(R.drawable.nav_unselected_settings);

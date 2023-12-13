@@ -1,8 +1,8 @@
 package com.hdvideo.allformats.player.Fragments;
 
 import android.app.Activity;
-import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -18,11 +18,13 @@ public class VideoFoldersAdapter  extends RecyclerView.Adapter<VideoFoldersAdapt
     private List<String> folderPaths;
     private Map<String, Integer> folderVideoCounts;
     private Activity activity;
+    private OnFolderClickListener onFolderClickListener;
 
-    public VideoFoldersAdapter(Activity activity, Map<String, Integer> folderVideoCounts) {
+    public VideoFoldersAdapter(Activity activity, Map<String, Integer> folderVideoCounts, OnFolderClickListener onFolderClickListener) {
         this.folderPaths = new ArrayList<>(folderVideoCounts.keySet());
         this.folderVideoCounts = folderVideoCounts;
         this.activity = activity;
+        this.onFolderClickListener = onFolderClickListener;
     }
 
 
@@ -41,6 +43,14 @@ public class VideoFoldersAdapter  extends RecyclerView.Adapter<VideoFoldersAdapt
 
         holder.binding.folderName.setText(folderName);
         holder.binding.totalVideo.setText(videoCount + " Videos");
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onFolderClickListener.onFolderClick(folderName,folderPath);
+            }
+        });
+
     }
 
     @Override
@@ -54,5 +64,9 @@ public class VideoFoldersAdapter  extends RecyclerView.Adapter<VideoFoldersAdapt
             super(itemView.getRoot());
             binding = itemView;
         }
+    }
+
+    public interface OnFolderClickListener{
+        void onFolderClick(String folderName, String path);
     }
 }

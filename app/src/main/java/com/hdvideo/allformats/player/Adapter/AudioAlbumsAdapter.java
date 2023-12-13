@@ -19,10 +19,12 @@ public class AudioAlbumsAdapter extends RecyclerView.Adapter<AudioAlbumsAdapter.
     private List<String> albumNames;
     private Map<String, Integer> albumSongsCount;
     private LayoutInflater inflater;
+    private OnAlbumClickListener onAlbumClickListener;
 
-    public AudioAlbumsAdapter(Context context, Map<String, Integer> albumSongsCount) {
+    public AudioAlbumsAdapter(Context context, Map<String, Integer> albumSongsCount, OnAlbumClickListener onAlbumClickListener) {
         this.albumNames = new ArrayList<>(albumSongsCount.keySet());
         this.albumSongsCount = albumSongsCount;
+        this.onAlbumClickListener = onAlbumClickListener;
         this.inflater = LayoutInflater.from(context);
     }
 
@@ -40,6 +42,13 @@ public class AudioAlbumsAdapter extends RecyclerView.Adapter<AudioAlbumsAdapter.
 
         holder.albumNameTextView.setText(albumName);
         holder.songCountTextView.setText(songCount + " Songs");
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onAlbumClickListener.onAlbumClick(albumName);
+            }
+        });
     }
 
     @Override
@@ -56,5 +65,9 @@ public class AudioAlbumsAdapter extends RecyclerView.Adapter<AudioAlbumsAdapter.
             albumNameTextView = itemView.findViewById(R.id.album_name_textview);
             songCountTextView = itemView.findViewById(R.id.song_count_textview);
         }
+    }
+
+    public interface OnAlbumClickListener{
+        void onAlbumClick(String albumName);
     }
 }

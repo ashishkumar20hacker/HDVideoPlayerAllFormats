@@ -1,10 +1,14 @@
 package com.hdvideo.allformats.player.Fragments;
 
+import static com.hdvideo.allformats.player.Extras.Utils.nextActivity;
+
 import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.view.LayoutInflater;
@@ -16,11 +20,21 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.material.card.MaterialCardView;
-import com.hdvideo.allformats.player.Activity.DashboardActivity;
+import com.hdvideo.allformats.player.Activity.ResultActivity;
+import com.hdvideo.allformats.player.Adapter.PlayListAdapter;
 import com.hdvideo.allformats.player.Adapter.VideoAdapter;
+import com.hdvideo.allformats.player.Extras.AppAsyncTask;
+import com.hdvideo.allformats.player.Extras.AppInterfaces;
+import com.hdvideo.allformats.player.Extras.SharePreferences;
 import com.hdvideo.allformats.player.Extras.Utils;
+import com.hdvideo.allformats.player.Models.VideoInfo;
 import com.hdvideo.allformats.player.R;
 import com.hdvideo.allformats.player.databinding.FragmentHomeBinding;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -70,6 +84,7 @@ public class HomeFragment extends Fragment {
     }
 
     FragmentHomeBinding binding;
+    SharePreferences preferences;
     int sort_by = 0;
 
     @Override
@@ -77,15 +92,13 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentHomeBinding.inflate(getLayoutInflater());
+        preferences = new SharePreferences(requireContext());
 
         binding.allVideoRv.setLayoutManager(new LinearLayoutManager(requireContext(),LinearLayoutManager.VERTICAL,false));
         binding.foldersRv.setLayoutManager(new LinearLayoutManager(requireContext(),LinearLayoutManager.VERTICAL,false));
+        binding.playlistRv.setLayoutManager(new GridLayoutManager(requireContext(),2));
 
-        VideoAdapter adapter = new VideoAdapter(requireActivity(), Utils.getVideoList(requireContext()));
-        binding.allVideoRv.setAdapter(adapter);
-
-        VideoFoldersAdapter foldersAdapter = new VideoFoldersAdapter(requireActivity(), Utils.getVideoFoldersWithCount(requireContext()));
-        binding.foldersRv.setAdapter(foldersAdapter);
+        switchUi(0);
 
         binding.allVideosTab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -128,7 +141,48 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        binding.recentsBt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(requireActivity(), ResultActivity.class).putExtra("type",4).putExtra("name",getString(R.string.recently_played)));
+            }
+        });
+
+        binding.favoritesBt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(requireActivity(), ResultActivity.class).putExtra("type",5).putExtra("name",getString(R.string.favorites)));
+            }
+        });
+
         return binding.getRoot();
+    }
+
+    private void setAdapterForFolders() {
+        AppAsyncTask.VideoFolders videoFolders = new AppAsyncTask.VideoFolders(requireActivity(), new AppInterfaces.VideosFolderListener() {
+            @Override
+            public void getVideosFolder(Map<String, Integer> folderList) {
+                VideoFoldersAdapter foldersAdapter = new VideoFoldersAdapter(requireActivity(), folderList, new VideoFoldersAdapter.OnFolderClickListener() {
+                    @Override
+                    public void onFolderClick(String folderName, String path) {
+                        startActivity(new Intent(requireActivity(), ResultActivity.class).putExtra("type",0).putExtra("name",folderName).putExtra("path",path));
+                    }
+                });
+                binding.foldersRv.setAdapter(foldersAdapter);
+            }
+        });
+        videoFolders.execute();
+    }
+
+    private void setAdapterForAll() {
+        AppAsyncTask.AllVideos allVideos = new AppAsyncTask.AllVideos(requireActivity(), new AppInterfaces.AllVideosListener() {
+            @Override
+            public void getAllVideos(List<VideoInfo> allVideoList) {
+                VideoAdapter adapter = new VideoAdapter(requireActivity(),allVideoList);
+                binding.allVideoRv.setAdapter(adapter);
+            }
+        });
+        allVideos.execute();
     }
 
     private void sortDialog() {
@@ -237,12 +291,30 @@ public class HomeFragment extends Fragment {
                     nameEd.setError("Please enter playlist name");
                     nameEd.requestFocus();
                 } else {
+                    preferences.createEmptyPlaylist(nameEd.getText().toString().trim());
+                    setAdapterForPlaylist();
                     dialog.dismiss();
                 }
             }
         });
 
         dialog.show();
+    }
+
+    private void setAdapterForPlaylist() {
+        PlayListAdapter adapter = new PlayListAdapter(new PlayListAdapter.PlayListClickListener() {
+            @Override
+            public void onDelete() {
+                setAdapterForPlaylist();
+            }
+
+            @Override
+            public void onItemClick(String playlistName) {
+                startActivity(new Intent(requireActivity(), ResultActivity.class).putExtra("type",3).putExtra("name", playlistName));
+            }
+        });
+        binding.playlistRv.setAdapter(adapter);
+        adapter.submitList(preferences.getPlaylists());
     }
 
     private void switchUi(int i) {
@@ -259,17 +331,25 @@ public class HomeFragment extends Fragment {
                 binding.allVideosTab.setBackgroundResource(R.drawable.tab_selected);
                 binding.allVideoRv.setVisibility(View.VISIBLE);
                 binding.sort.setVisibility(View.VISIBLE);
+                setAdapterForAll();
                 break;
             case 1:
                 binding.playlistTab.setBackgroundResource(R.drawable.tab_selected);
                 binding.playlistLl.setVisibility(View.VISIBLE);
                 binding.add.setVisibility(View.VISIBLE);
-                binding.countAll.setText(Utils.getVideoList(requireContext()).size() + " Videos");
+                ExecutorService service = Executors.newSingleThreadExecutor();
+                service.execute(()->{
+                    binding.countAll.setText(Utils.getVideoList(requireContext()).size() + " Videos");
+                    binding.countRecents.setText(preferences.getVideoDataModelList().size() + " Videos");
+                    binding.countFav.setText(preferences.getFavVideoDataModelList().size() + " Videos");
+                });
+                setAdapterForPlaylist();
                 break;
             case 2:
                 binding.foldersTab.setBackgroundResource(R.drawable.tab_selected);
                 binding.foldersRv.setVisibility(View.VISIBLE);
                 binding.sort.setVisibility(View.VISIBLE);
+                setAdapterForFolders();
                 break;
         }
     }
