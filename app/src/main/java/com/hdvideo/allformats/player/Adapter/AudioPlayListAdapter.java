@@ -31,9 +31,11 @@ public class AudioPlayListAdapter extends ListAdapter<AudioPlaylistModel, AudioP
 
     private SharePreferences preferences;
     private AudioPlayListClickListener playListClickListener;
+    private boolean isAdd = false;
 
-    public AudioPlayListAdapter(AudioPlayListClickListener playListClickListener){
+    public AudioPlayListAdapter(boolean isAdd, AudioPlayListClickListener playListClickListener){
         super(diffCallback);
+        this.isAdd = isAdd;
         this.playListClickListener = playListClickListener;
     }
 
@@ -51,7 +53,9 @@ public class AudioPlayListAdapter extends ListAdapter<AudioPlaylistModel, AudioP
         holder.binding.title.setText(model.getPlaylistName());
         holder.binding.count.setText(model.getAudioList().size()+" Songs");
         holder.binding.placeholder.setImageResource(R.drawable.new_playlist);
-
+        if (isAdd) {
+            holder.binding.delete.setVisibility(View.GONE);
+        }
         holder.binding.delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

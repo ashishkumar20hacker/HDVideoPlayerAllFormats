@@ -4,28 +4,28 @@ import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.hdvideo.allformats.player.Extras.AppInterfaces;
 import com.hdvideo.allformats.player.Extras.SharePreferences;
 import com.hdvideo.allformats.player.Models.VideoInfo;
-import com.hdvideo.allformats.player.R;
 import com.hdvideo.allformats.player.databinding.ItemVideoBinding;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> {
     Activity activity;
     List<VideoInfo> videosInFolder;
     SharePreferences preferences;
+    private AppInterfaces.OnMoreListener moreListener;
 
-    public VideoAdapter(Activity activity, List<VideoInfo> videosInFolder) {
+    public VideoAdapter(Activity activity, List<VideoInfo> videosInFolder, AppInterfaces.OnMoreListener moreListener) {
         this.activity = activity;
         this.videosInFolder = videosInFolder;
+        this.moreListener = moreListener;
         preferences = new SharePreferences(activity);
     }
 
@@ -51,7 +51,6 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
                     list.add(newDataModel);
                     preferences.putVideoDataModelList(list);
                 } else {
-                    //TODO PERFORM FIFO
                     int elementsToRemove = list.size() - 14; // Number of elements to remove (15 - 1)
                     list.subList(0, elementsToRemove).clear(); // Removes the oldest elements
                     VideoInfo newDataModel = videosInFolder.get(position);
@@ -71,11 +70,16 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
                     list.add(newDataModel);
                     preferences.putFavVideoDataModelList(list);
                 }*/
-                /*List<VideoInfo> list = new ArrayList<>();
-                list.add(videosInFolder.get(position));
-                preferences.addItemsToPlaylist(playListName,list);*/
             }
         });
+
+        holder.binding.more.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                moreListener.onMoreClick(videosInFolder.get(position).getId(), videosInFolder.get(position).getName(),videosInFolder.get(position).getPath(), String.valueOf(videosInFolder.get(position).getSizeInMB()), holder.binding.more);
+            }
+        });
+
     }
 
     @Override

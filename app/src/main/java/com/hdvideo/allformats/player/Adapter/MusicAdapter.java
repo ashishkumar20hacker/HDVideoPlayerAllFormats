@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.hdvideo.allformats.player.Extras.AppInterfaces;
 import com.hdvideo.allformats.player.Extras.SharePreferences;
 import com.hdvideo.allformats.player.Models.AudioInfo;
 import com.hdvideo.allformats.player.Models.VideoInfo;
@@ -20,9 +21,11 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.ViewHolder> 
     Activity activity;
     List<AudioInfo> videosInFolder;
     SharePreferences preferences;
-    public MusicAdapter(Activity activity, List<AudioInfo> videosInFolder) {
+    private AppInterfaces.OnMoreListener moreListener;
+    public MusicAdapter(Activity activity, List<AudioInfo> videosInFolder, AppInterfaces.OnMoreListener moreListener) {
         this.activity = activity;
         this.videosInFolder = videosInFolder;
+        this.moreListener = moreListener;
         preferences = new SharePreferences(activity);
     }
 
@@ -67,6 +70,13 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.ViewHolder> 
                     list.add(newDataModel);
                     preferences.putFavAudioDataModelList(list);
                 }*/
+            }
+        });
+
+        holder.binding.more.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                moreListener.onMoreClick(videosInFolder.get(position).getId(),videosInFolder.get(position).getName(),videosInFolder.get(position).getPath(), String.valueOf(videosInFolder.get(position).getSizeInMB()),holder.binding.more);
             }
         });
 

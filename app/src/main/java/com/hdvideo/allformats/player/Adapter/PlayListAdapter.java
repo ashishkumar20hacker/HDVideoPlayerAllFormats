@@ -31,9 +31,11 @@ public class PlayListAdapter extends ListAdapter<VideoPlaylistModel, PlayListAda
 
     private SharePreferences preferences;
     private PlayListClickListener playListClickListener;
+    private boolean isAdd = false;
 
-    public PlayListAdapter(PlayListClickListener playListClickListener){
+    public PlayListAdapter(boolean isAdd, PlayListClickListener playListClickListener){
         super(diffCallback);
+        this.isAdd = isAdd;
         this.playListClickListener = playListClickListener;
     }
 
@@ -51,6 +53,10 @@ public class PlayListAdapter extends ListAdapter<VideoPlaylistModel, PlayListAda
         holder.binding.title.setText(model.getPlaylistName());
         holder.binding.count.setText(model.getVideoList().size()+" Videos");
         holder.binding.placeholder.setImageResource(R.drawable.video_playlist_ph);
+
+        if (isAdd) {
+            holder.binding.delete.setVisibility(View.GONE);
+        }
 
         holder.binding.delete.setOnClickListener(new View.OnClickListener() {
             @Override

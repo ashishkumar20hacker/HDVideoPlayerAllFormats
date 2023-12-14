@@ -74,4 +74,13 @@ on your device.</font></string>
     <string name="sort_by">Sort By</string>
     <string name="size">Size</string>
     <string name="date">Date</string>
+    <string name="play">Play</string>
+    <string name="add_to_playlist">Add to Playlist</string>
+    <string name="rename">Rename</string>
+    <string name="delete">Delete</string>
+    <string name="share">Share</string>
+    <string name="remove_from_playlist">Remove from Playlist</string>
+    <string name="please_enter_something_to_search">Please enter something to search!!</string>
+    <string name="enter_new_name">Enter New Name</string>
+    <string name="added_to_playlist">Added to PlayList</string>
 </resources>

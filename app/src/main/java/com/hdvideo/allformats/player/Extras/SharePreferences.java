@@ -197,6 +197,30 @@ public class SharePreferences {
        }
    }
 
+    public void removeItemFromPlaylist(String playlistName, String path) {
+        List<VideoPlaylistModel> playlists = getPlaylists();
+
+        for (VideoPlaylistModel playlist : playlists) {
+            if (playlist.getPlaylistName().equals(playlistName)) {
+                List<VideoInfo> videoList = playlist.getVideoList();
+
+                Iterator<VideoInfo> iterator = videoList.iterator();
+                while (iterator.hasNext()) {
+                    VideoInfo video = iterator.next();
+                    if (video.getPath().equals(path)) {
+                        iterator.remove();
+                        break;
+                    }
+                }
+
+                // Save the updated list of playlists to SharedPreferences
+                savePlaylists(playlists);
+                return;
+            }
+        }
+    }
+
+
     public List<VideoPlaylistModel> getPlaylists() {
         String json = sharedPreferences.getString(VIDEO_PLAYLIST_KEY, "");
         if (json.isEmpty()) {
@@ -289,6 +313,30 @@ public class SharePreferences {
            }
        }
    }
+
+    public void removeItemFromAudioPlaylist(String playlistName, String path) {
+        List<AudioPlaylistModel> playlists = getAudioPlaylists();
+
+        for (AudioPlaylistModel playlist : playlists) {
+            if (playlist.getPlaylistName().equals(playlistName)) {
+                List<AudioInfo> videoList = playlist.getAudioList();
+
+                Iterator<AudioInfo> iterator = videoList.iterator();
+                while (iterator.hasNext()) {
+                    AudioInfo video = iterator.next();
+                    if (video.getPath().equals(path)) {
+                        iterator.remove();
+                        break;
+                    }
+                }
+
+                // Save the updated list of playlists to SharedPreferences
+                saveAudioPlaylists(playlists);
+                return;
+            }
+        }
+    }
+
 
     public List<AudioPlaylistModel> getAudioPlaylists() {
         String json = sharedPreferences.getString(AUDIO_PLAYLIST_KEY, "");

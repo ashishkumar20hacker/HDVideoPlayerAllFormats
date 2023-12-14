@@ -1,24 +1,41 @@
 package com.hdvideo.allformats.player.Activity;
 
+import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainAudioInfoList;
+import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainVideoInfoList;
+import static com.hdvideo.allformats.player.Extras.Utils.openMenuDialog;
+
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.card.MaterialCardView;
+import com.hdvideo.allformats.player.Adapter.AudioPlayListAdapter;
 import com.hdvideo.allformats.player.Adapter.MusicAdapter;
+import com.hdvideo.allformats.player.Adapter.PlayListAdapter;
 import com.hdvideo.allformats.player.Adapter.VideoAdapter;
+import com.hdvideo.allformats.player.Extras.AppInterfaces;
 import com.hdvideo.allformats.player.Extras.SharePreferences;
 import com.hdvideo.allformats.player.Extras.Utils;
+import com.hdvideo.allformats.player.Models.AudioInfo;
+import com.hdvideo.allformats.player.Models.VideoInfo;
 import com.hdvideo.allformats.player.R;
 import com.hdvideo.allformats.player.databinding.ActivityResultBinding;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ResultActivity extends AppCompatActivity {
 
@@ -28,6 +45,11 @@ public class ResultActivity extends AppCompatActivity {
     int type = 0;
 
     SharePreferences preferences;
+
+    List<VideoInfo> videoInfoList;
+    List<AudioInfo> audioInfoList;
+
+    boolean isPresentInPlaylist = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,32 +67,66 @@ public class ResultActivity extends AppCompatActivity {
         binding.resultRv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
         if (type == 0) {
-            VideoAdapter adapter = new VideoAdapter(this, Utils.getAllVideosFromFolder(this, path));
-            binding.resultRv.setAdapter(adapter);
+            videoInfoList = Utils.getAllVideosFromFolder(this, path);
+            setAdapterForVideos();
         } else if (type == 1) {
-            MusicAdapter adapter = new MusicAdapter(this, Utils.getSongsFromAlbum(this, name));
-            binding.resultRv.setAdapter(adapter);
+            audioInfoList = Utils.getSongsFromAlbum(this, name);
+            setAdapterForAudios();
         } else if (type == 2) {
-            MusicAdapter adapter = new MusicAdapter(this, Utils.getSongsByArtist(this, name));
-            binding.resultRv.setAdapter(adapter);
+            audioInfoList = Utils.getSongsByArtist(this, name);
+            setAdapterForAudios();
         } else if (type == 3) {
-            VideoAdapter adapter = new VideoAdapter(this, preferences.getVideoListForPlaylist(name));
-            binding.resultRv.setAdapter(adapter);
+            isPresentInPlaylist = true;
+            videoInfoList = preferences.getVideoListForPlaylist(name);
+            setAdapterForVideos();
         } else if (type == 4) {
-            VideoAdapter adapter = new VideoAdapter(this, preferences.getVideoDataModelList());
-            binding.resultRv.setAdapter(adapter);
+            videoInfoList = preferences.getVideoDataModelList();
+            setAdapterForVideos();
         } else if (type == 5) {
-            VideoAdapter adapter = new VideoAdapter(this, preferences.getFavVideoDataModelList());
-            binding.resultRv.setAdapter(adapter);
+            videoInfoList = preferences.getFavVideoDataModelList();
+            setAdapterForVideos();
         } else if (type == 6) {
-            MusicAdapter adapter = new MusicAdapter(this, preferences.getAudioListForPlaylist(name));
-            binding.resultRv.setAdapter(adapter);
+            isPresentInPlaylist = true;
+            audioInfoList = preferences.getAudioListForPlaylist(name);
+            setAdapterForAudios();
         } else if (type == 7) {
-            MusicAdapter adapter = new MusicAdapter(this, preferences.getAudioDataModelList());
-            binding.resultRv.setAdapter(adapter);
+            audioInfoList = preferences.getAudioDataModelList();
+            setAdapterForAudios();
         } else if (type == 8) {
-            MusicAdapter adapter = new MusicAdapter(this, preferences.getFavAudioDataModelList());
-            binding.resultRv.setAdapter(adapter);
+            audioInfoList = preferences.getFavAudioDataModelList();
+            setAdapterForAudios();
+        } else if (type == 9) {
+//            AppAsyncTask.AllVideos allVideos = new AppAsyncTask.AllVideos(ResultActivity.this, new AppInterfaces.AllVideosListener() {
+//                @Override
+//                public void getAllVideos(List<VideoInfo> allVideoList) {
+            videoInfoList = new ArrayList<>();
+            for (VideoInfo d : mainVideoInfoList) {
+                if (d.getName().toLowerCase() != null && d.getName().contains(name)) {
+                    videoInfoList.add(d);
+                }
+            }
+            checkVideoList();
+//                }
+//            });
+//            allVideos.execute();
+        } else if (type == 10) {
+//            AppAsyncTask.AllSongs allSongs = new AppAsyncTask.AllSongs(ResultActivity.this, new AppInterfaces.AllAudiosListener() {
+//                @Override
+//                public void getAllAudios(List<AudioInfo> allAudioList) {
+            audioInfoList = new ArrayList<>();
+            for (AudioInfo d : mainAudioInfoList) {
+                if (d.getName().toLowerCase() != null && d.getName().contains(name)) {
+                    audioInfoList.add(d);
+                }
+            }
+            checkAudioList();
+//                }
+//            });
+//            allSongs.execute();
+        } else if (type == 11) {
+            setAdapterForPlaylist();
+        } else if (type == 12) {
+            setAdapterForAudioPlaylist();
         }
 
         binding.sort.setOnClickListener(new View.OnClickListener() {
@@ -80,6 +136,91 @@ public class ResultActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void setAdapterForAudioPlaylist() {
+        binding.resultRv.setLayoutManager(new GridLayoutManager(ResultActivity.this,2));
+        AudioPlayListAdapter adapter = new AudioPlayListAdapter(true,new AudioPlayListAdapter.AudioPlayListClickListener() {
+            @Override
+            public void onDelete() {
+                setAdapterForPlaylist();
+            }
+
+            @Override
+            public void onItemClick(String playlistName) {
+                preferences.addItemsToAudioPlaylist(playlistName,mainAudioInfoList);
+                Toast.makeText(ResultActivity.this, getString(R.string.added_to_playlist), Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        });
+        binding.resultRv.setAdapter(adapter);
+        adapter.submitList(preferences.getAudioPlaylists());
+    }
+
+    private void setAdapterForPlaylist() {
+        binding.resultRv.setLayoutManager(new GridLayoutManager(ResultActivity.this,2));
+
+        PlayListAdapter adapter = new PlayListAdapter(true,new PlayListAdapter.PlayListClickListener() {
+            @Override
+            public void onDelete() {
+                setAdapterForPlaylist();
+            }
+
+            @Override
+            public void onItemClick(String playlistName) {
+                preferences.addItemsToPlaylist(playlistName,mainVideoInfoList);
+                Toast.makeText(ResultActivity.this, getString(R.string.added_to_playlist), Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        });
+        binding.resultRv.setAdapter(adapter);
+        adapter.submitList(preferences.getPlaylists());
+    }
+
+    private void checkAudioList() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (audioInfoList.size() != 0) {
+                    setAdapterForAudios();
+                } else {
+                    checkAudioList();
+                }
+            }
+        }, 500);
+    }
+
+    private void checkVideoList() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (videoInfoList.size() != 0) {
+                    setAdapterForVideos();
+                } else {
+                    checkVideoList();
+                }
+            }
+        }, 500);
+    }
+
+    private void setAdapterForAudios() {
+        MusicAdapter adapter = new MusicAdapter(ResultActivity.this, audioInfoList, new AppInterfaces.OnMoreListener() {
+            @Override
+            public void onMoreClick(long id, String name, String path, String size, ImageView more) {
+                openMenuDialog(ResultActivity.this,id, name, path, size, false, more, binding.title.getText().toString());
+            }
+        });
+        binding.resultRv.setAdapter(adapter);
+    }
+
+    private void setAdapterForVideos() {
+        VideoAdapter adapter = new VideoAdapter(ResultActivity.this, videoInfoList, new AppInterfaces.OnMoreListener() {
+            @Override
+            public void onMoreClick(long id, String name, String path, String size, ImageView more) {
+                openMenuDialog(ResultActivity.this,id, name, path, size, true, more, binding.title.getText().toString());
+            }
+        });
+        binding.resultRv.setAdapter(adapter);
     }
 
     private void sortDialog() {
@@ -160,5 +301,19 @@ public class ResultActivity extends AppCompatActivity {
         });
 
         dialog.show();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        mainAudioInfoList = null;
+        mainVideoInfoList = null;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mainAudioInfoList = null;
+        mainVideoInfoList = null;
     }
 }

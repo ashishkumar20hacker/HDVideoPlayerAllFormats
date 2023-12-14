@@ -1,21 +1,16 @@
 package com.hdvideo.allformats.player.Fragments;
 
-import static com.hdvideo.allformats.player.Extras.Utils.showRateApp;
+import static com.hdvideo.allformats.player.Extras.Utils.openMenuDialog;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 
-import androidx.core.app.ActivityCompat;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -33,11 +28,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.google.android.material.tabs.TabLayout;
-import com.hdvideo.allformats.player.Activity.DashboardActivity;
 import com.hdvideo.allformats.player.Adapter.StatusAdapter;
 import com.hdvideo.allformats.player.Adapter.VideoAdapter;
+import com.hdvideo.allformats.player.Extras.AppInterfaces;
 import com.hdvideo.allformats.player.Extras.Constants;
 import com.hdvideo.allformats.player.Extras.SharePreferences;
 import com.hdvideo.allformats.player.Extras.Utils;
@@ -289,7 +282,12 @@ public class StatusFragment extends Fragment {
     private void loadSaved() {
         List<VideoInfo> videosInFolder = Utils.getVideosFromFolder(requireActivity(), String.valueOf(Constants.downloadWhatsAppDir));
         if (videosInFolder.size() != 0) {
-            VideoAdapter adapter = new VideoAdapter(requireActivity(), videosInFolder);
+            VideoAdapter adapter = new VideoAdapter(requireActivity(), videosInFolder, new AppInterfaces.OnMoreListener() {
+                @Override
+                public void onMoreClick(long id, String name, String path, String size, ImageView more) {
+                    openMenuDialog(requireActivity(),id,name, path, size, true, more, "");
+                }
+            });
             binding.savedRv.setAdapter(adapter);
             binding.noSaved.setVisibility(View.GONE);
             binding.savedRv.setVisibility(View.VISIBLE);

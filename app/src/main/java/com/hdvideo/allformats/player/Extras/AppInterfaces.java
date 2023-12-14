@@ -1,5 +1,7 @@
 package com.hdvideo.allformats.player.Extras;
 
+import android.widget.ImageView;
+
 import com.hdvideo.allformats.player.Models.AudioInfo;
 import com.hdvideo.allformats.player.Models.VideoInfo;
 
@@ -22,6 +24,10 @@ public class AppInterfaces {
     }
     public interface ArtistsListener {
         void getArtists(Map<String, Integer> artistsList);
+    }
+
+    public interface OnMoreListener {
+        void onMoreClick(long id, String name, String path, String size, ImageView more);
     }
 
 }

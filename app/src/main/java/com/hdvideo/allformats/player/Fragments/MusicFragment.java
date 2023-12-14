@@ -1,5 +1,8 @@
 package com.hdvideo.allformats.player.Fragments;
 
+import static com.hdvideo.allformats.player.Extras.Utils.openMenuDialog;
+
+import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainAudioInfoList;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
@@ -9,10 +12,12 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -23,17 +28,18 @@ import com.hdvideo.allformats.player.Adapter.ArtistsAdapter;
 import com.hdvideo.allformats.player.Adapter.AudioAlbumsAdapter;
 import com.hdvideo.allformats.player.Adapter.AudioPlayListAdapter;
 import com.hdvideo.allformats.player.Adapter.MusicAdapter;
-import com.hdvideo.allformats.player.Adapter.PlayListAdapter;
-import com.hdvideo.allformats.player.Adapter.VideoAdapter;
 import com.hdvideo.allformats.player.Extras.AppAsyncTask;
 import com.hdvideo.allformats.player.Extras.AppInterfaces;
 import com.hdvideo.allformats.player.Extras.SharePreferences;
 import com.hdvideo.allformats.player.Extras.Utils;
 import com.hdvideo.allformats.player.Models.AudioInfo;
-import com.hdvideo.allformats.player.Models.VideoInfo;
 import com.hdvideo.allformats.player.R;
 import com.hdvideo.allformats.player.databinding.FragmentMusicBinding;
 
+import java.io.File;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -89,7 +95,7 @@ public class MusicFragment extends Fragment {
     FragmentMusicBinding binding;
     SharePreferences preferences;
     int sort_by = 0;
-
+    List<AudioInfo> mainList;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -168,6 +174,24 @@ public class MusicFragment extends Fragment {
             }
         });
 
+        binding.searchEd.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    if (binding.searchEd.getText().toString().isEmpty()) {
+                        binding.searchEd.setError(getString(R.string.please_enter_something_to_search));
+                        binding.searchEd.requestFocus();
+                    } else {
+                        mainAudioInfoList = mainList;
+                        startActivity(new Intent(requireActivity(), ResultActivity.class).putExtra("type",10).putExtra("name",binding.searchEd.getText().toString().toLowerCase().trim()));
+                        binding.searchEd.setText("");
+                    }
+                    return true;
+                }
+                return false;
+            }
+        });
+
 
         return binding.getRoot();
     }
@@ -189,7 +213,7 @@ public class MusicFragment extends Fragment {
     }
 
     private void setAdapterForPlaylist() {
-        AudioPlayListAdapter adapter = new AudioPlayListAdapter(new AudioPlayListAdapter.AudioPlayListClickListener() {
+        AudioPlayListAdapter adapter = new AudioPlayListAdapter(false, new AudioPlayListAdapter.AudioPlayListClickListener() {
             @Override
             public void onDelete() {
                 setAdapterForPlaylist();
@@ -224,7 +248,13 @@ public class MusicFragment extends Fragment {
         AppAsyncTask.AllSongs allSongs = new AppAsyncTask.AllSongs(requireActivity(), new AppInterfaces.AllAudiosListener() {
             @Override
             public void getAllAudios(List<AudioInfo> allAudioList) {
-                MusicAdapter adapter = new MusicAdapter(requireActivity(), allAudioList);
+                mainList = allAudioList;
+                MusicAdapter adapter = new MusicAdapter(requireActivity(), allAudioList, new AppInterfaces.OnMoreListener() {
+                    @Override
+                    public void onMoreClick(long id, String name, String path, String size, ImageView more) {
+                        openMenuDialog(requireActivity(),id,name, path, size, false, more, "");
+                    }
+                });
                 binding.allSongsRv.setAdapter(adapter);
             }
         });
@@ -255,6 +285,13 @@ public class MusicFragment extends Fragment {
             }
         });
 
+        Collections.sort(mainList, new Comparator<AudioInfo>() {
+            @Override
+            public int compare(AudioInfo model1, AudioInfo model2) {
+                return model1.getName().compareTo(model2.getName());
+            }
+        });
+
         nameRb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -264,7 +301,12 @@ public class MusicFragment extends Fragment {
                 sizeRbIv.setImageResource(R.drawable.unselected_rb);
                 nameRb.setStrokeColor(Utils.setColorFromAttribute(requireActivity(), R.attr.light_color, R.color.light_blue));
                 nameRbIv.setImageResource(R.drawable.selected_rb);
-                sort_by = 0;
+                Collections.sort(mainList, new Comparator<AudioInfo>() {
+                    @Override
+                    public int compare(AudioInfo model1, AudioInfo model2) {
+                        return model1.getName().compareTo(model2.getName());
+                    }
+                });
             }
         });
 
@@ -277,7 +319,16 @@ public class MusicFragment extends Fragment {
                 sizeRbIv.setImageResource(R.drawable.unselected_rb);
                 dateRb.setStrokeColor(Utils.setColorFromAttribute(requireActivity(), R.attr.light_color, R.color.light_blue));
                 dateRbIv.setImageResource(R.drawable.selected_rb);
-                sort_by = 1;
+                Collections.sort(mainList, new Comparator<AudioInfo>() {
+                    @Override
+                    public int compare(AudioInfo model1, AudioInfo model2) {
+                        File file = new File(model1.getPath());
+                        Date lastModDate = new Date(file.lastModified());
+                        File file2 = new File(model2.getPath());
+                        Date lastModDate2 = new Date(file2.lastModified());
+                        return lastModDate.compareTo(lastModDate2);
+                    }
+                });
             }
         });
 
@@ -290,7 +341,12 @@ public class MusicFragment extends Fragment {
                 nameRbIv.setImageResource(R.drawable.unselected_rb);
                 sizeRb.setStrokeColor(Utils.setColorFromAttribute(requireActivity(), R.attr.light_color, R.color.light_blue));
                 sizeRbIv.setImageResource(R.drawable.selected_rb);
-                sort_by = 2;
+                Collections.sort(mainList, new Comparator<AudioInfo>() {
+                    @Override
+                    public int compare(AudioInfo model1, AudioInfo model2) {
+                        return Double.compare(model1.getSizeInMB(), model2.getSizeInMB());
+                    }
+                });
             }
         });
 
@@ -298,13 +354,13 @@ public class MusicFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
-                if (sort_by == 0) {
-                    //TODO sort by name
-                } else if (sort_by == 1) {
-                    //TODO sort by date
-                } else {
-                    //TODO sort by size
-                }
+                MusicAdapter adapter = new MusicAdapter(requireActivity(), mainList, new AppInterfaces.OnMoreListener() {
+                    @Override
+                    public void onMoreClick(long id, String name, String path, String size, ImageView more) {
+                        openMenuDialog(requireActivity(),id,name, path, size, false, more, "");
+                    }
+                });
+                binding.allSongsRv.setAdapter(adapter);
             }
         });
 
@@ -390,5 +446,25 @@ public class MusicFragment extends Fragment {
                 setAdapterForArtist();
                 break;
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        /*ExecutorService service = Executors.newSingleThreadExecutor();
+        service.execute(() -> {
+            String countAll = Utils.getAllAudioFiles(requireContext()).size() + " Songs";
+            String countRecents = preferences.getAudioDataModelList().size() + " Songs";
+            String countFav = preferences.getFavAudioDataModelList().size() + " Songs";
+            requireActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    binding.countAll.setText(countAll);
+                    binding.countRecents.setText(countRecents);
+                    binding.countFav.setText(countFav);
+                }
+            });
+        });*/
+
     }
 }

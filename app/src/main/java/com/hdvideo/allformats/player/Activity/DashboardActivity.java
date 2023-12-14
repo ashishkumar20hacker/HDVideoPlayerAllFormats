@@ -27,8 +27,12 @@ import com.hdvideo.allformats.player.Fragments.MusicFragment;
 import com.hdvideo.allformats.player.Fragments.SettingsFragment;
 import com.hdvideo.allformats.player.Fragments.StatusFragment;
 import com.hdvideo.allformats.player.Fragments.ThemesFragment;
+import com.hdvideo.allformats.player.Models.AudioInfo;
+import com.hdvideo.allformats.player.Models.VideoInfo;
 import com.hdvideo.allformats.player.R;
 import com.hdvideo.allformats.player.databinding.ActivityDashboardBinding;
+
+import java.util.List;
 
 public class DashboardActivity extends AppCompatActivity {
 
@@ -37,6 +41,8 @@ public class DashboardActivity extends AppCompatActivity {
     String fragmentName;
 
     SharePreferences preferences;
+    public static List<VideoInfo> mainVideoInfoList;
+    public static List<AudioInfo> mainAudioInfoList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

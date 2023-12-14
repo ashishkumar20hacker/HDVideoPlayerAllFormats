@@ -3,61 +3,67 @@ package com.hdvideo.allformats.player.Extras;
 
 import static android.os.Build.VERSION.SDK_INT;
 
+import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainAudioInfoList;
+import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainVideoInfoList;
 import static com.hdvideo.allformats.player.Extras.Constants.downloadWhatsAppDir;
 
 import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
+import android.app.Dialog;
+import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
-import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Shader;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.IntentSenderRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 
-import com.google.android.gms.tasks.Task;
-import com.google.android.play.core.review.ReviewInfo;
 import com.google.android.play.core.review.ReviewManager;
-import com.google.android.play.core.review.ReviewManagerFactory;
-import com.google.android.play.core.review.testing.FakeReviewManager;
+import com.hdvideo.allformats.player.Activity.ResultActivity;
 import com.hdvideo.allformats.player.Models.AudioInfo;
 import com.hdvideo.allformats.player.Models.VideoInfo;
 import com.hdvideo.allformats.player.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -67,11 +73,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
-import java.util.Set;
 
 public class Utils {
 
@@ -84,6 +87,7 @@ public class Utils {
     public static final int STORAGE_PERMISSION_REQ_CODE = 100; // Define your request code
     public static final int NOTIFICATION_PERMISSION_REQ_CODE = 101; // Define your request code
 
+    public static Activity myActivity;
 
     public static void ShowToast(Context context, String str) {
         try {
@@ -171,6 +175,7 @@ public class Utils {
         List<VideoInfo> videoInfoList = new ArrayList<>();
 
         String[] projection = {
+                MediaStore.Video.Media._ID,
                 MediaStore.Video.Media.DISPLAY_NAME,
                 MediaStore.Video.Media.SIZE,
                 MediaStore.Video.Media.DATA
@@ -189,13 +194,14 @@ public class Utils {
             if (cursor != null) {
                 while (cursor.moveToNext()) {
                     String videoName = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DISPLAY_NAME));
+                    long videoId = cursor.getLong(cursor.getColumnIndex(MediaStore.Video.Media._ID));
                     long videoSizeInBytes = cursor.getLong(cursor.getColumnIndex(MediaStore.Video.Media.SIZE));
                     String videoPath = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA));
 
                     // Convert bytes to megabytes
                     double videoSizeInMB = (videoSizeInBytes / (1024.0 * 1024.0));
 
-                    VideoInfo videoInfo = new VideoInfo(videoName, videoSizeInMB, videoPath);
+                    VideoInfo videoInfo = new VideoInfo(videoId, videoName, videoSizeInMB, videoPath);
                     videoInfoList.add(videoInfo);
                 }
             }
@@ -278,7 +284,7 @@ public class Utils {
         if (SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             return ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_MEDIA_VIDEO) == PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED;
         } else {
-            return ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+            return ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
         }
     }
 
@@ -287,7 +293,7 @@ public class Utils {
         if (SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             activity.requestPermissions(new String[]{Manifest.permission.READ_MEDIA_VIDEO, Manifest.permission.READ_MEDIA_AUDIO}, STORAGE_PERMISSION_REQ_CODE);
         } else {
-            activity.requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_PERMISSION_REQ_CODE);
+            activity.requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_PERMISSION_REQ_CODE);
         }
     }
 
@@ -479,29 +485,41 @@ public class Utils {
         return fileList;
     }
 
-    public static void shareAudioFile(Context context, String audioFilePath) {
-//        try {
-//            String sourceFilePath = audioFilePath;
-//            String destinationDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
-//
-//            File sourceFile = new File(sourceFilePath);
-//            File destinationFile = new File(destinationDirectory, sourceFile.getName());
-//            if (!destinationFile.exists()) {
-//                copyFile(sourceFile, destinationFile);
+    public static void shareVideoFile(Context context, File destinationFile) {
+        try {
+            // ...
+            Log.d("check", Uri.fromFile(destinationFile).toString());
+            Uri uri2 = FileProvider.getUriForFile(
+                    context,
+                    context.getPackageName() + ".provider",
+                    destinationFile
+            );
 
-//                shareAudioFile2(context,destinationFile);
-//            } else {
-        shareAudioFile2(context, new File(audioFilePath));
-//            }
-//
-//        } catch (
-//                Throwable t) {
-//            System.out.println("Throw>>" + t);
-//        }
+//             Grant URI permission to other apps
+            context.grantUriPermission(
+                    context.getPackageName(),
+                    uri2,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+            );
+
+            Intent share = new Intent(Intent.ACTION_SEND);
+            share.setType("video/*");
+            share.putExtra(Intent.EXTRA_STREAM, uri2);
+
+            // Revoke URI permissions after sharing
+            context.revokeUriPermission(
+                    uri2,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+            );
+
+            context.startActivity(Intent.createChooser(share, "Share Video File"));
+        } catch (Throwable t) {
+            System.out.println("Throw>>" + t);
+        }
 
     }
 
-    private static void shareAudioFile2(Context context, File destinationFile) {
+    private static void shareAudioFile(Context context, File destinationFile) {
         try {
             // ...
             Log.d("check", Uri.fromFile(destinationFile).toString());
@@ -528,7 +546,7 @@ public class Utils {
                     Intent.FLAG_GRANT_READ_URI_PERMISSION
             );
 
-            context.startActivity(Intent.createChooser(share, "Share Sound File"));
+            context.startActivity(Intent.createChooser(share, "Share Audio File"));
         } catch (Throwable t) {
             System.out.println("Throw>>" + t);
         }
@@ -781,7 +799,7 @@ public class Utils {
     }
 
 
-    public static boolean deleteAudioFile(String filePath) {
+    public static boolean deleteFile(String filePath) {
         File fileToDelete = new File(filePath);
 
         if (fileToDelete.exists() && fileToDelete.isFile()) {
@@ -979,6 +997,7 @@ public class Utils {
 
             if (cursor != null && cursor.moveToFirst()) {
                 do {
+                    long audioId = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media._ID));
                     String audioPath = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
                     String audioName = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
                     long audioSizeInBytes = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.SIZE));
@@ -987,7 +1006,7 @@ public class Utils {
                     double audioSizeInMB = (audioSizeInBytes / (1024.0 * 1024.0));
                     double audioSizeInKB = (audioSizeInBytes / 1024.0);
 
-                    AudioInfo audioInfo = new AudioInfo(audioPath, audioName, roundToTwoDecimals(audioSizeInKB));
+                    AudioInfo audioInfo = new AudioInfo(audioId, audioPath, audioName, roundToTwoDecimals(audioSizeInKB));
                     audioFiles.add(audioInfo);
                 } while (cursor.moveToNext());
             }
@@ -1065,6 +1084,165 @@ public class Utils {
         }
 
         return songCount;
+    }
+
+    public static void openMenuDialog(Activity activity, long id, String name, String path, String size, boolean isVideo, ImageView more, String isPresentInPlaylist) {
+
+        myActivity = activity;
+
+        PopupMenuCustomLayout popupMenu = new PopupMenuCustomLayout(activity, R.layout.menu_dialog,
+                new PopupMenuCustomLayout.PopupMenuCustomOnClickListener() {
+                    @Override
+                    public void onClick(int itemId) {
+                        // log statement: "Clicked on: " + itemId
+                        switch (itemId) {
+                            case R.id.play_menu:
+                                // log statement: "Item A was clicked!"
+                                break;
+                            case R.id.add_to_playlist:
+                                // log statement: "Item A was clicked!"
+                                if (isVideo) {
+                                    mainVideoInfoList = new ArrayList<>();
+                                    mainVideoInfoList.add(new VideoInfo(id, name, Double.parseDouble(size), path));
+                                    activity.startActivity(new Intent(activity, ResultActivity.class).putExtra("type", 11).putExtra("name", "Select Playlist"));
+                                } else {
+                                    mainAudioInfoList = new ArrayList<>();
+                                    mainAudioInfoList.add(new AudioInfo(id, path, name, Double.parseDouble(size)));
+                                    activity.startActivity(new Intent(activity, ResultActivity.class).putExtra("type", 12).putExtra("name", "Select Playlist"));
+                                }
+                                break;
+                            case R.id.remove_from_playlist:
+                                // log statement: "Item A was clicked!"
+                                SharePreferences preferences = new SharePreferences(activity);
+                                if (isVideo) {
+                                    preferences.removeItemFromPlaylist(isPresentInPlaylist, path);
+                                    activity.recreate();
+                                } else {
+                                    preferences.removeItemFromAudioPlaylist(isPresentInPlaylist, path);
+                                    activity.recreate();
+                                }
+                                break;
+                            case R.id.rename:
+                                // log statement: "Item A was clicked!"
+                                if (isStoragePermissionGranted(activity)) {
+                                    renameDialog(activity, id, path, isVideo);
+                                } else {
+                                    requestStoragePermission(activity);
+                                }
+                                break;
+                            case R.id.delete:
+                                // log statement: "Item A was clicked!"
+                                if (isStoragePermissionGranted(activity)) {
+                                    Log.e(TAG, "deleteFile: " + deleteFile(path));
+                                } else {
+                                    requestStoragePermission(activity);
+                                }
+                                break;
+                            case R.id.share:
+                                // log statement: "Item A was clicked!"
+                                if (isStoragePermissionGranted(activity)) {
+                                    if (isVideo) {
+                                        shareVideoFile(activity, new File(path));
+                                    } else {
+                                        shareAudioFile(activity, new File(path));
+                                    }
+                                } else {
+                                    requestStoragePermission(activity);
+                                }
+                                break;
+                        }
+                    }
+                });
+        if (isVideo) {
+            TextView add = (TextView) popupMenu.getMenuItem(1);
+            TextView remove = (TextView) popupMenu.getMenuItem(2);
+            add.setCompoundDrawablesWithIntrinsicBounds(R.drawable.add_to_playlist, 0, 0, 0);
+            remove.setCompoundDrawablesWithIntrinsicBounds(R.drawable.remove_from_playlist, 0, 0, 0);
+            if (!isPresentInPlaylist.isEmpty()) {
+                add.setVisibility(View.GONE);
+                remove.setVisibility(View.VISIBLE);
+            } else {
+                remove.setVisibility(View.GONE);
+                add.setVisibility(View.VISIBLE);
+            }
+        } else {
+            TextView add = (TextView) popupMenu.getMenuItem(1);
+            TextView remove = (TextView) popupMenu.getMenuItem(2);
+            add.setCompoundDrawablesWithIntrinsicBounds(R.drawable.add_music, 0, 0, 0);
+            remove.setCompoundDrawablesWithIntrinsicBounds(R.drawable.remove_music, 0, 0, 0);
+            if (!isPresentInPlaylist.isEmpty()) {
+                add.setVisibility(View.GONE);
+                remove.setVisibility(View.VISIBLE);
+            } else {
+                remove.setVisibility(View.GONE);
+                add.setVisibility(View.VISIBLE);
+            }
+        }
+        popupMenu.show(more);
+
+    }
+
+
+    private static void renameDialog(Activity activity, long id, String path, boolean isVideo) {
+        Dialog dialog = new Dialog(activity, R.style.SheetDialog);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(true);
+        LayoutInflater inflater = LayoutInflater.from(activity);
+
+        View lay = inflater.inflate(R.layout.dialog_playlist, null);
+        ImageView closeBt = lay.findViewById(R.id.close);
+        EditText nameEd = lay.findViewById(R.id.name_ed);
+        TextView createBt = lay.findViewById(R.id.create_bt);
+        TextView textView = lay.findViewById(R.id.tv_title);
+
+        dialog.setContentView(lay);
+
+        textView.setText(activity.getString(R.string.enter_new_name));
+        nameEd.setHint(activity.getString(R.string.enter_new_name));
+        createBt.setText(activity.getString(R.string.rename));
+
+        createBt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (nameEd.getText().toString().isEmpty()) {
+                    Toast.makeText(activity, activity.getString(R.string.enter_new_name), Toast.LENGTH_SHORT).show();
+                } else {
+                    List<Uri> uriList = new ArrayList<>();
+                    Uri uri;
+                    if (isVideo) {
+                        uri = ContentUris.withAppendedId(MediaStore.Video.Media.getContentUri("external"), id);
+                    } else {
+                        uri = ContentUris.withAppendedId(MediaStore.Audio.Media.getContentUri("external"), id);
+                    }
+                    uriList.add(uri);
+                    PendingIntent intent = null;
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                        intent = MediaStore.createWriteRequest(activity.getContentResolver(), uriList);
+//                        MediaStore.createWriteRequest()
+                        IntentSender intentSender = intent.getIntentSender();
+                        IntentSenderRequest intentSenderRequest = new IntentSenderRequest.Builder(intentSender).build();
+
+                        try {
+                            activity.startIntentSenderForResult(intent.getIntentSender(), 101, null, 0, 0, 0);
+                        } catch (IntentSender.SendIntentException e) {
+                            throw new RuntimeException(e);
+                        }
+                    } else {
+                        Utils.renameAudioFile(path, nameEd.getText().toString().trim());
+                    }
+                    dialog.dismiss();
+                }
+            }
+        });
+
+        closeBt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
     }
 
     public static Map<String, Integer> getArtistsWithSongCount(Context context) {
@@ -1154,6 +1332,7 @@ public class Utils {
 
             if (cursor != null) {
                 while (cursor.moveToNext()) {
+                    long videoId = cursor.getLong(cursor.getColumnIndex(MediaStore.Video.Media._ID));
                     String videoPath = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA));
                     String videoName = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DISPLAY_NAME));
                     long videoSizeInBytes = cursor.getLong(cursor.getColumnIndex(MediaStore.Video.Media.SIZE));
@@ -1161,7 +1340,7 @@ public class Utils {
                     // Convert bytes to megabytes
                     double videoSizeInMB = (videoSizeInBytes / (1024.0 * 1024.0));
 
-                    VideoInfo videoInfo = new VideoInfo(videoName, roundToTwoDecimals(videoSizeInMB), videoPath);
+                    VideoInfo videoInfo = new VideoInfo(videoId, videoName, roundToTwoDecimals(videoSizeInMB), videoPath);
                     videoInfoList.add(videoInfo);
                 }
             }
@@ -1214,6 +1393,7 @@ public class Utils {
         List<VideoInfo> videoInfoList = new ArrayList<>();
 
         String[] projection = {
+                MediaStore.Video.Media._ID,
                 MediaStore.Video.Media.DISPLAY_NAME,
                 MediaStore.Video.Media.SIZE,
                 MediaStore.Video.Media.DATA
@@ -1230,13 +1410,15 @@ public class Utils {
             int pathIndex = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
 
             while (cursor.moveToNext()) {
+
+                long videoId = cursor.getLong(cursor.getColumnIndex(MediaStore.Video.Media._ID));
                 String videoName = cursor.getString(nameIndex);
                 long videoSizeInBytes = cursor.getLong(sizeIndex);
                 String videoPath = cursor.getString(pathIndex);
 
                 double videoSizeInMB = videoSizeInBytes / (1024.0 * 1024.0);
 
-                VideoInfo videoInfo = new VideoInfo(videoName, roundToTwoDecimals(videoSizeInMB), videoPath);
+                VideoInfo videoInfo = new VideoInfo(videoId, videoName, roundToTwoDecimals(videoSizeInMB), videoPath);
                 videoInfoList.add(videoInfo);
             }
 
@@ -1250,6 +1432,7 @@ public class Utils {
         List<AudioInfo> audioInfoList = new ArrayList<>();
 
         String[] projection = {
+                MediaStore.Audio.Media._ID,
                 MediaStore.Audio.Media.TITLE,
                 MediaStore.Audio.Media.SIZE,
                 MediaStore.Audio.Media.DATA
@@ -1263,18 +1446,20 @@ public class Utils {
         Cursor cursor = contentResolver.query(uri, projection, selection, selectionArgs, null);
 
         if (cursor != null) {
+            int idIndex = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID);
             int nameIndex = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE);
             int sizeIndex = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE);
             int pathIndex = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
 
             while (cursor.moveToNext()) {
+                long songID = cursor.getLong(idIndex);
                 String songName = cursor.getString(nameIndex);
                 long songSizeInBytes = cursor.getLong(sizeIndex);
                 String songPath = cursor.getString(pathIndex);
 
                 double songSizeInMB = songSizeInBytes / (1024.0 * 1024.0);
 
-                AudioInfo audioInfo = new AudioInfo(songPath, songName, roundToTwoDecimals(songSizeInMB));
+                AudioInfo audioInfo = new AudioInfo(songID, songPath, songName, roundToTwoDecimals(songSizeInMB));
                 audioInfoList.add(audioInfo);
             }
 
@@ -1288,6 +1473,7 @@ public class Utils {
         List<AudioInfo> audioInfoList = new ArrayList<>();
 
         String[] projection = {
+                MediaStore.Audio.Media._ID,
                 MediaStore.Audio.Media.TITLE,
                 MediaStore.Audio.Media.SIZE,
                 MediaStore.Audio.Media.DATA
@@ -1301,18 +1487,21 @@ public class Utils {
         Cursor cursor = contentResolver.query(uri, projection, selection, selectionArgs, null);
 
         if (cursor != null) {
+            int idIndex = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID);
+
             int nameIndex = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE);
             int sizeIndex = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE);
             int pathIndex = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
 
             while (cursor.moveToNext()) {
+                long songId = cursor.getLong(idIndex);
                 String songName = cursor.getString(nameIndex);
                 long songSizeInBytes = cursor.getLong(sizeIndex);
                 String songPath = cursor.getString(pathIndex);
 
                 double songSizeInMB = songSizeInBytes / (1024.0 * 1024.0);
 
-                AudioInfo audioInfo = new AudioInfo(songPath, songName, roundToTwoDecimals(songSizeInMB));
+                AudioInfo audioInfo = new AudioInfo(idIndex, songPath, songName, roundToTwoDecimals(songSizeInMB));
                 audioInfoList.add(audioInfo);
             }
 
