@@ -8,7 +8,9 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,6 +38,7 @@ import java.util.List;
 
 public class DashboardActivity extends AppCompatActivity {
 
+    private static final String TAG = "DashboardActivity";
     ActivityDashboardBinding binding;
 
     String fragmentName;
@@ -43,6 +46,8 @@ public class DashboardActivity extends AppCompatActivity {
     SharePreferences preferences;
     public static List<VideoInfo> mainVideoInfoList;
     public static List<AudioInfo> mainAudioInfoList;
+    public static String mainOldFilePath = "";
+    public static String mainNewFileName = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,6 +119,26 @@ public class DashboardActivity extends AppCompatActivity {
             exitDialog();
         } else {
             switchUi(2);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 123) {
+            if (resultCode == Activity.RESULT_OK) {
+                Utils.renameAudioFile(mainOldFilePath, mainNewFileName);
+                //TODO need to update ui
+            } else if (resultCode == Activity.RESULT_CANCELED) {
+                Log.d(TAG, "onActivityResult:  RESULT_CANCELED");
+            }
+        } else if (requestCode == 124) {
+            if (resultCode == Activity.RESULT_OK) {
+                Utils.deleteFile(mainOldFilePath);
+                //TODO need to update ui
+            } else if (resultCode == Activity.RESULT_CANCELED) {
+                Log.d(TAG, "onActivityResult:  RESULT_CANCELED");
+            }
         }
     }
 

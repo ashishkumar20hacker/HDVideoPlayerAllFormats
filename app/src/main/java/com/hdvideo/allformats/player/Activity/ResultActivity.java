@@ -1,6 +1,8 @@
 package com.hdvideo.allformats.player.Activity;
 
 import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainAudioInfoList;
+import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainNewFileName;
+import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainOldFilePath;
 import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainVideoInfoList;
 import static com.hdvideo.allformats.player.Extras.Utils.openMenuDialog;
 
@@ -9,11 +11,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -38,7 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ResultActivity extends AppCompatActivity {
-
+    private static final String TAG = "ResultActivity";
     ActivityResultBinding binding;
     String path, name;
     int sort_by = 0;
@@ -212,6 +216,27 @@ public class ResultActivity extends AppCompatActivity {
         });
         binding.resultRv.setAdapter(adapter);
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 123) {
+            if (resultCode == Activity.RESULT_OK) {
+                Utils.renameAudioFile(mainOldFilePath, mainNewFileName);
+                recreate();
+            } else if (resultCode == Activity.RESULT_CANCELED) {
+                Log.d(TAG, "onActivityResult:  RESULT_CANCELED");
+            }
+        } else if (requestCode == 124) {
+            if (resultCode == Activity.RESULT_OK) {
+                Utils.deleteFile(mainOldFilePath);
+                //TODO need to update ui
+            } else if (resultCode == Activity.RESULT_CANCELED) {
+                Log.d(TAG, "onActivityResult:  RESULT_CANCELED");
+            }
+        }
+    }
+
 
     private void setAdapterForVideos() {
         VideoAdapter adapter = new VideoAdapter(ResultActivity.this, videoInfoList, new AppInterfaces.OnMoreListener() {

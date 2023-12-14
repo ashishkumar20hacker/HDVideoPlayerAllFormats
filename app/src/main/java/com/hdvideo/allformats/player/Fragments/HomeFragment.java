@@ -1,9 +1,13 @@
 package com.hdvideo.allformats.player.Fragments;
 
+import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainNewFileName;
+import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainOldFilePath;
 import static com.hdvideo.allformats.player.Extras.Utils.nextActivity;
 import static com.hdvideo.allformats.player.Extras.Utils.openMenuDialog;
 
 import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainVideoInfoList;
+
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
@@ -13,6 +17,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -323,6 +328,7 @@ public class HomeFragment extends Fragment {
 
         dialog.show();
     }
+
 
     private void createPlaylistDialog() {
         Dialog dialog = new Dialog(requireActivity(), R.style.SheetDialog);

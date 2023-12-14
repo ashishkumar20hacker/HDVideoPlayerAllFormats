@@ -4,6 +4,8 @@ package com.hdvideo.allformats.player.Extras;
 import static android.os.Build.VERSION.SDK_INT;
 
 import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainAudioInfoList;
+import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainNewFileName;
+import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainOldFilePath;
 import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainVideoInfoList;
 import static com.hdvideo.allformats.player.Extras.Constants.downloadWhatsAppDir;
 
@@ -30,6 +32,7 @@ import android.graphics.LinearGradient;
 import android.graphics.Shader;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.util.Log;
@@ -1133,6 +1136,31 @@ public class Utils {
                             case R.id.delete:
                                 // log statement: "Item A was clicked!"
                                 if (isStoragePermissionGranted(activity)) {
+                                    List<Uri> uriList = new ArrayList<>();
+                                    Uri uri;
+                                    if (isVideo) {
+                                        uri = ContentUris.withAppendedId(MediaStore.Video.Media.getContentUri("external"), id);
+                                    } else {
+                                        uri = ContentUris.withAppendedId(MediaStore.Audio.Media.getContentUri("external"), id);
+                                    }
+                                    uriList.add(uri);
+                                    PendingIntent intent = null;
+                                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                                        intent = MediaStore.createDeleteRequest(activity.getContentResolver(), uriList);
+//                        MediaStore.createWriteRequest()
+                                        IntentSender intentSender = intent.getIntentSender();
+                                        IntentSenderRequest intentSenderRequest = new IntentSenderRequest.Builder(intentSender).build();
+
+                                        try {
+                                            mainOldFilePath = path;
+                                            mainNewFileName = "";
+                                            activity.startIntentSenderForResult(intent.getIntentSender(), 124, null, 0, 0, 0);
+                                        } catch (IntentSender.SendIntentException e) {
+                                            throw new RuntimeException(e);
+                                        }
+                                    } else {
+                                        deleteFile(path);
+                                    }
                                     Log.e(TAG, "deleteFile: " + deleteFile(path));
                                 } else {
                                     requestStoragePermission(activity);
@@ -1223,7 +1251,9 @@ public class Utils {
                         IntentSenderRequest intentSenderRequest = new IntentSenderRequest.Builder(intentSender).build();
 
                         try {
-                            activity.startIntentSenderForResult(intent.getIntentSender(), 101, null, 0, 0, 0);
+                            mainOldFilePath = path;
+                            mainNewFileName = nameEd.getText().toString().trim();
+                            activity.startIntentSenderForResult(intent.getIntentSender(), 123, null, 0, 0, 0);
                         } catch (IntentSender.SendIntentException e) {
                             throw new RuntimeException(e);
                         }
