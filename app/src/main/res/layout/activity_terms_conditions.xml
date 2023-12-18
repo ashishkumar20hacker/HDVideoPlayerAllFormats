@@ -19,8 +19,7 @@
             android:layout_height="wrap_content"
             android:padding="@dimen/_8sdp"
             android:layout_centerVertical="true"
-            android:src="@drawable/arrowright"
-            android:rotation="180" />
+            android:src="@drawable/backbt"/>
 
         <TextView
             android:id="@+id/title_tv"

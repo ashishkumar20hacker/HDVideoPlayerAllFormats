@@ -46,6 +46,8 @@ public class DashboardActivity extends AppCompatActivity {
     SharePreferences preferences;
     public static List<VideoInfo> mainVideoInfoList;
     public static List<AudioInfo> mainAudioInfoList;
+    public static List<VideoInfo> mainVideoPlayerInfoList;
+    public static List<AudioInfo> mainAudioPlayerInfoList;
     public static String mainOldFilePath = "";
     public static String mainNewFileName = "";
 

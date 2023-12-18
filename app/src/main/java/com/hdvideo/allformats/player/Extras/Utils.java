@@ -7,22 +7,27 @@ import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainAudio
 import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainNewFileName;
 import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainOldFilePath;
 import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainVideoInfoList;
+import static com.hdvideo.allformats.player.Extras.Constants.SELECTED_MUSIC_POSITION;
 import static com.hdvideo.allformats.player.Extras.Constants.downloadWhatsAppDir;
 
 import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
@@ -32,9 +37,12 @@ import android.graphics.LinearGradient;
 import android.graphics.Shader;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -59,11 +67,15 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.play.core.review.ReviewManager;
+import com.hdvideo.allformats.player.Activity.MusicPlayerActivity;
 import com.hdvideo.allformats.player.Activity.ResultActivity;
 import com.hdvideo.allformats.player.Models.AudioInfo;
 import com.hdvideo.allformats.player.Models.VideoInfo;
 import com.hdvideo.allformats.player.R;
+import com.hdvideo.allformats.player.Service.MusicPlayerService;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -77,7 +89,9 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class Utils {
 
@@ -466,6 +480,69 @@ public class Utils {
             winParams.flags &= ~bits;
         }
         win.setAttributes(winParams);
+    }
+
+    public static PendingIntent createNotificationPendingIntent(Context context, ExoPlayer exoPlayer) {
+        SharePreferences preferences = new SharePreferences(context);
+        Intent intent = new Intent(context, MusicPlayerActivity.class);
+//        int selectedMusicPosition= preferences.getInt(SELECTED_MUSIC_POSITION, 0);
+//        intent.putExtra("currentMusicPosition", selectedMusicPosition);
+        intent.putExtra("currentPlayingMusicPosition", exoPlayer.getCurrentMediaItemIndex());
+        intent.putExtra("fromNotification", true);
+        return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    public static float dipToPixels(Context context, float dipValue) {
+        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, metrics);
+    }
+
+    public static String formatTime(long timeMillis) {
+        long totalSeconds = timeMillis / 1000;
+        long hours = totalSeconds / 3600;
+        long minutes = (totalSeconds % 3600) / 60;
+        long seconds = totalSeconds % 60;
+
+        return String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds);
+    }
+
+    @NonNull
+    public static MediaMetadata getMusicMetaData(@NonNull AudioInfo song) {
+        Uri artworkUri = Uri.parse("content://media/external/audio/media/" + song.getId() + "/albumart");
+        Bundle bundle = new Bundle();
+        bundle.putString("musicFilePath", song.getPath());
+        bundle.putLong("musicID", song.getId());
+//        bundle.putLong("musicDuration", song.getMusicDuration());
+//        bundle.putString("musicMimeType", song.getMusicMimeType());
+//        bundle.putLong("musicSize", song.getMusicSize());
+//        bundle.putLong("musicSize", song.getMusicSize());
+//        bundle.putLong("musicDateAdded", song.getMusicDateAdded());
+//        bundle.putLong("musicLastViewedDate", song.getMusicLastViewedDate());
+//        bundle.putBoolean("isFavourite", song.isFavourite());
+        return new MediaMetadata.Builder()
+                .setTitle(song.getName())
+                .setArtworkUri(artworkUri)
+//                .setArtist(song.getMusicArtist())
+//                .setAlbumTitle(song.getMusicAlbum())
+                .setExtras(bundle)
+                .build();
+    }
+
+    @SuppressLint("DefaultLocale")
+    public static String formatTimeDuration(long durationInMillis) {
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(durationInMillis);
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(durationInMillis) -
+                TimeUnit.MINUTES.toSeconds(minutes);
+
+        return String.format("%d:%02d", minutes, seconds);
+    }
+
+    public static void loadFadeAnimationToView(View view, int visibility, float val1, float val2) {
+        view.setVisibility(visibility);
+        view.setAlpha(val2);
+        ObjectAnimator fadeOut = ObjectAnimator.ofFloat(view, "alpha", val1, val2);
+        fadeOut.setDuration(500);
+        fadeOut.start();
     }
 
     public static List<String> getFilesInDirectory(String directoryPath) {
@@ -1581,41 +1658,58 @@ public class Utils {
         String extension = getFileExtension(fileName);
         return extension != null && (extension.equalsIgnoreCase("jpg") || extension.equalsIgnoreCase("jpeg") || extension.equalsIgnoreCase("png") || extension.equalsIgnoreCase("gif") || extension.equalsIgnoreCase("bmp"));
     }
-/*
-    public static ShimmerDrawable getShimmer() {
-        Shimmer shimmer = new Shimmer.AlphaHighlightBuilder().setDuration(1200) // how long the shimmering animation takes to do one full sweep
-                .setBaseAlpha(0.7f) //the alpha of the underlying children
-                .setHighlightAlpha(0.9f) // the shimmer alpha amount
-                .setDirection(Shimmer.Direction.LEFT_TO_RIGHT).setShape(Shimmer.Shape.LINEAR).setAutoStart(true).build();
-        ShimmerDrawable shimmerDrawable = new ShimmerDrawable();
-        shimmerDrawable.setShimmer(shimmer);
 
-        return shimmerDrawable;
-    }
+    /*
+        public static ShimmerDrawable getShimmer() {
+            Shimmer shimmer = new Shimmer.AlphaHighlightBuilder().setDuration(1200) // how long the shimmering animation takes to do one full sweep
+                    .setBaseAlpha(0.7f) //the alpha of the underlying children
+                    .setHighlightAlpha(0.9f) // the shimmer alpha amount
+                    .setDirection(Shimmer.Direction.LEFT_TO_RIGHT).setShape(Shimmer.Shape.LINEAR).setAutoStart(true).build();
+            ShimmerDrawable shimmerDrawable = new ShimmerDrawable();
+            shimmerDrawable.setShimmer(shimmer);
 
-    public static List<MyVideo> getAllVideosFromUri(Context context) {
-        List<MyVideo> videoPaths = new ArrayList<>();
-
-        String[] projection = {
-                MediaStore.Video.Media.DISPLAY_NAME,
-                MediaStore.Video.Media.DATA};
-        String sortOrder = MediaStore.Video.Media.DATE_MODIFIED + " DESC";
-
-        Cursor cursor = context.getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, projection, null, null, sortOrder);
-
-        if (cursor != null) {
-            int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
-            int titleIndex = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME);
-            while (cursor.moveToNext()) {
-                String videoPath = cursor.getString(columnIndex);
-                String title = cursor.getString(titleIndex);
-                videoPaths.add(new MyVideo(videoPath, title, Uri.fromFile(new File(videoPath))));
-            }
-            cursor.close();
-            Log.e("getAllVideosFromUri: ", videoPaths.size() + " ");
+            return shimmerDrawable;
         }
 
-        return videoPaths;
-    }*/
+        public static List<MyVideo> getAllVideosFromUri(Context context) {
+            List<MyVideo> videoPaths = new ArrayList<>();
+
+            String[] projection = {
+                    MediaStore.Video.Media.DISPLAY_NAME,
+                    MediaStore.Video.Media.DATA};
+            String sortOrder = MediaStore.Video.Media.DATE_MODIFIED + " DESC";
+
+            Cursor cursor = context.getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, projection, null, null, sortOrder);
+
+            if (cursor != null) {
+                int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
+                int titleIndex = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME);
+                while (cursor.moveToNext()) {
+                    String videoPath = cursor.getString(columnIndex);
+                    String title = cursor.getString(titleIndex);
+                    videoPaths.add(new MyVideo(videoPath, title, Uri.fromFile(new File(videoPath))));
+                }
+                cursor.close();
+                Log.e("getAllVideosFromUri: ", videoPaths.size() + " ");
+            }
+
+            return videoPaths;
+        }*/
+    public static void stopMusicService(Activity activity) {
+        ServiceConnection playerServiceConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+                MusicPlayerService.ServiceBinder binder = (MusicPlayerService.ServiceBinder) iBinder;
+                MusicPlayerService musicPlayerService = binder.getMusicPlayerService();
+                musicPlayerService.stopMusicNotification();
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName componentName) {
+            }
+        };
+        Intent playerServiceIntent = new Intent(activity, MusicPlayerService.class);
+        activity.bindService(playerServiceIntent, playerServiceConnection, Context.BIND_AUTO_CREATE);
+    }
 
 }

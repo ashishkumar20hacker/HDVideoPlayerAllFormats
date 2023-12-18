@@ -5,30 +5,35 @@
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
         <item name="light_color">@color/light_blue</item>
         <item name="dark_color">@color/dark_blue</item>
+        <item name="android:statusBarColor">@color/light_blue</item>
     </style>
     <style name="Base.Theme.HDVideoPlayerAllFormats.Second" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
         <item name="light_color">@color/theme_two_one</item>
         <item name="dark_color">@color/theme_two_two</item>
+        <item name="android:statusBarColor">@color/theme_two_one</item>
     </style>
     <style name="Base.Theme.HDVideoPlayerAllFormats.Third" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
         <item name="light_color">@color/theme_three_one</item>
         <item name="dark_color">@color/theme_three_two</item>
+        <item name="android:statusBarColor">@color/theme_three_one</item>
     </style>
     <style name="Base.Theme.HDVideoPlayerAllFormats.Fourth" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
         <item name="light_color">@color/theme_four_one</item>
         <item name="dark_color">@color/theme_four_two</item>
+        <item name="android:statusBarColor">@color/theme_four_one</item>
     </style>
     <style name="Base.Theme.HDVideoPlayerAllFormats.Fifth" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
         <item name="light_color">@color/theme_five_one</item>
         <item name="dark_color">@color/theme_five_two</item>
+        <item name="android:statusBarColor">@color/theme_five_one</item>
     </style>
 
     <style name="Theme.HDVideoPlayerAllFormats" parent="Base.Theme.HDVideoPlayerAllFormats" />
