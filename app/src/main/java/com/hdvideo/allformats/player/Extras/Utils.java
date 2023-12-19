@@ -68,6 +68,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.play.core.review.ReviewManager;
 import com.hdvideo.allformats.player.Activity.MusicPlayerActivity;
@@ -91,6 +92,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public class Utils {
@@ -485,8 +487,8 @@ public class Utils {
     public static PendingIntent createNotificationPendingIntent(Context context, ExoPlayer exoPlayer) {
         SharePreferences preferences = new SharePreferences(context);
         Intent intent = new Intent(context, MusicPlayerActivity.class);
-//        int selectedMusicPosition= preferences.getInt(SELECTED_MUSIC_POSITION, 0);
-//        intent.putExtra("currentMusicPosition", selectedMusicPosition);
+        int selectedMusicPosition= preferences.getInt(SELECTED_MUSIC_POSITION, 0);
+        intent.putExtra("currentMusicPosition", selectedMusicPosition);
         intent.putExtra("currentPlayingMusicPosition", exoPlayer.getCurrentMediaItemIndex());
         intent.putExtra("fromNotification", true);
         return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
@@ -504,6 +506,77 @@ public class Utils {
         long seconds = totalSeconds % 60;
 
         return String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds);
+    }
+
+    public static void getMusicServiceExoPlayer(Activity activity, AppInterfaces.ExoPlayerInterface exoPlayerInterface) {
+        ServiceConnection playerServiceConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+                MusicPlayerService.ServiceBinder binder = (MusicPlayerService.ServiceBinder) iBinder;
+                MusicPlayerService musicPlayerService = binder.getMusicPlayerService();
+                ExoPlayer player= musicPlayerService.exoplayer;
+                exoPlayerInterface.getResult(player);
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName componentName) {
+                exoPlayerInterface.getResult(null);
+            }
+        };
+        Intent playerServiceIntent = new Intent(activity, MusicPlayerService.class);
+        activity.bindService(playerServiceIntent, playerServiceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    public static ArrayList<AudioInfo> getMusicModelArrayListFromMediaList(List<MediaItem> mediaItemList) {
+        ArrayList<AudioInfo> arrayList= new ArrayList<>();
+        for(MediaItem item : mediaItemList){
+            String musicFilePath= Objects.requireNonNull(item.mediaMetadata.extras).getString("musicFilePath");
+            long musicId= item.mediaMetadata.extras.getLong("musicID", 0);
+            String musicTitle= String.valueOf(item.mediaMetadata.title);
+            String musicArtist= String.valueOf(item.mediaMetadata.artist);
+            String musicAlbum= String.valueOf(item.mediaMetadata.albumTitle);
+            long musicDuration= item.mediaMetadata.extras.getLong("musicDuration", 0);
+            String musicMimeType= item.mediaMetadata.extras.getString("musicMimeType");
+            long musicSize= item.mediaMetadata.extras.getLong("musicSize", 0);
+            long musicDateAdded= item.mediaMetadata.extras.getLong("musicDateAdded", 0);
+            long musicDateModified= item.mediaMetadata.extras.getLong("musicDateModified", 0);
+            long musicLastDateViewed= item.mediaMetadata.extras.getLong("musicLastViewedDate", 0);
+            boolean isFavourite= item.mediaMetadata.extras.getBoolean("isFavourite", false);
+//            arrayList.add(new AudioInfo(Objects.requireNonNull(musicFilePath), musicId, musicTitle, musicArtist, musicAlbum, musicDuration,
+//                    musicMimeType, musicSize, musicDateAdded, musicDateModified, musicLastDateViewed, isFavourite));
+            arrayList.add(new AudioInfo(musicId, musicFilePath, musicTitle,musicSize));
+        }
+        return arrayList;
+    }
+
+    public static String getArtistName(Activity activity,long id) {
+// Assuming song.getId() contains the audio file's ID
+        long audioFileId = id;
+
+// Set up the query to retrieve the artist name
+        String[] projection = {MediaStore.Audio.Media.ARTIST};
+        String selection = MediaStore.Audio.Media._ID + "=?";
+        String[] selectionArgs = {String.valueOf(audioFileId)};
+
+// Query the MediaStore for the artist name
+        Cursor cursor = activity.getContentResolver().query(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                projection,
+                selection,
+                selectionArgs,
+                null
+        );
+
+        if (cursor != null && cursor.moveToFirst()) {
+            // Retrieve the artist name
+            String artistName = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
+            // Use the artistName as needed (e.g., display it)
+            // ...
+
+            cursor.close();
+            return artistName;
+        }
+        return "";
     }
 
     @NonNull
@@ -599,7 +672,7 @@ public class Utils {
 
     }
 
-    private static void shareAudioFile(Context context, File destinationFile) {
+    public static void shareAudioFile(Context context, File destinationFile) {
         try {
             // ...
             Log.d("check", Uri.fromFile(destinationFile).toString());
@@ -1286,6 +1359,41 @@ public class Utils {
         popupMenu.show(more);
 
     }
+
+    public static boolean checkAudioFav(SharePreferences preferences, String path) {
+        List<AudioInfo> list = preferences.getFavAudioDataModelList();
+
+        boolean found = false;
+
+// Check if the list already contains a VideoInfo with the same path as newDataModel
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getPath().equals(path)) {
+                found = true;
+// Remove the item with the same path
+                break; // Stop after removing the first occurrence
+            }
+        }
+// Add the new instance if it wasn't found in the list
+        return found;
+    }
+
+    public static boolean checkVideoFav(SharePreferences preferences, String path) {
+        List<VideoInfo> list = preferences.getFavVideoDataModelList();
+
+        boolean found = false;
+
+// Check if the list already contains a VideoInfo with the same path as newDataModel
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getPath().equals(path)) {
+                found = true;
+// Remove the item with the same path
+                break; // Stop after removing the first occurrence
+            }
+        }
+// Add the new instance if it wasn't found in the list
+        return found;
+    }
+
 
 
     private static void renameDialog(Activity activity, long id, String path, boolean isVideo) {

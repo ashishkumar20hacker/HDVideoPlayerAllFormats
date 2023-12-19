@@ -1,12 +1,15 @@
 package com.hdvideo.allformats.player.Activity;
 
+import static com.hdvideo.allformats.player.Extras.Utils.NOTIFICATION_PERMISSION_REQ_CODE;
 import static com.hdvideo.allformats.player.Extras.Utils.STORAGE_PERMISSION_REQ_CODE;
 import static com.hdvideo.allformats.player.Extras.Utils.isStoragePermissionGranted;
 import static com.hdvideo.allformats.player.Extras.Utils.makeStatusBarTransparent2;
 import static com.hdvideo.allformats.player.Extras.Utils.pushEffectCardView;
+import static com.hdvideo.allformats.player.Extras.Utils.requestNotificationPermission;
 import static com.hdvideo.allformats.player.Extras.Utils.requestStoragePermission;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -59,7 +62,9 @@ public class PermissionsActivity extends AppCompatActivity {
                     public void onClick() {
                         if (!isStoragePermissionGranted(PermissionsActivity.this)) {
                             requestStoragePermission(PermissionsActivity.this);
-                        } else {
+                        } else if (!Utils.isNotificationPermissionGranted(PermissionsActivity.this)){
+                            requestNotificationPermission(PermissionsActivity.this);
+                        }else {
                             startActivity(new Intent(PermissionsActivity.this, DashboardActivity.class));
                         }
                     }
@@ -77,10 +82,32 @@ public class PermissionsActivity extends AppCompatActivity {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 if (isStoragePermissionGranted(PermissionsActivity.this)) {
                     binding.switch1.setImageResource(R.drawable.on);
+                    if (Utils.isNotificationPermissionGranted(PermissionsActivity.this) && isStoragePermissionGranted(PermissionsActivity.this)){
+                        startActivity(new Intent(PermissionsActivity.this, DashboardActivity.class));
+                    }
+                    if (!Utils.isNotificationPermissionGranted(PermissionsActivity.this)){
+                        requestNotificationPermission(PermissionsActivity.this);
+                    }
                 } else {
                     binding.switch1.setImageResource(R.drawable.off);
                     requestStoragePermission(PermissionsActivity.this);
                 }
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == NOTIFICATION_PERMISSION_REQ_CODE){
+            if (Utils.isNotificationPermissionGranted(PermissionsActivity.this) && isStoragePermissionGranted(PermissionsActivity.this)){
+                startActivity(new Intent(PermissionsActivity.this, DashboardActivity.class));
+            }
+            if (!Utils.isNotificationPermissionGranted(PermissionsActivity.this)){
+                requestNotificationPermission(PermissionsActivity.this);
+            }
+            if (!isStoragePermissionGranted(PermissionsActivity.this)) {
+                requestStoragePermission(PermissionsActivity.this);
             }
         }
     }

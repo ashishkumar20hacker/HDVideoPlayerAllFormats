@@ -74,7 +74,7 @@
                             android:layout_width="@dimen/_150sdp"
                             android:layout_height="@dimen/_150sdp"
                             android:layout_gravity="center"
-                            android:src="@drawable/ic_launcher_background" />
+                            android:background="@drawable/logo" />
 
                     </androidx.cardview.widget.CardView>
 
@@ -84,6 +84,8 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/poppins"
                         android:text="@string/now_playing"
+                        android:singleLine="true"
+                        android:maxLines="1"
                         android:textColor="@color/white"
                         android:layout_marginTop="@dimen/_10sdp"
                         android:textSize="@dimen/_12sdp"
@@ -192,6 +194,7 @@
             </com.google.android.material.card.MaterialCardView>
 
             <TextView
+                android:id="@+id/more_like_this"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins"
@@ -204,7 +207,8 @@
                 android:id="@+id/music_rv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="@dimen/_10sdp"/>
+                android:layout_marginVertical="@dimen/_10sdp"
+                tools:listitem="@layout/item_audio"/>
 
         </LinearLayout>
 

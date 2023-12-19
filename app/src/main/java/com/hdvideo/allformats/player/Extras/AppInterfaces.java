@@ -2,9 +2,11 @@ package com.hdvideo.allformats.player.Extras;
 
 import android.widget.ImageView;
 
+import com.google.android.exoplayer2.ExoPlayer;
 import com.hdvideo.allformats.player.Models.AudioInfo;
 import com.hdvideo.allformats.player.Models.VideoInfo;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +30,14 @@ public class AppInterfaces {
 
     public interface OnMoreListener {
         void onMoreClick(long id, String name, String path, String size, ImageView more);
+    }
+
+    public interface MusicDetailsModelInterface{
+        void getMusicDetailsModelArrayList(ArrayList<AudioInfo> musicArrayList);
+    }
+
+    public interface ExoPlayerInterface{
+        void getResult(ExoPlayer player);
     }
 
 }

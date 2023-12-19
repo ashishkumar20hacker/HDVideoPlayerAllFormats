@@ -31,6 +31,7 @@
             android:id="@+id/ll1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/_5sdp"
             android:orientation="vertical">
 
             <TextView
@@ -205,6 +206,7 @@
                         android:justificationMode="inter_word"
                         android:onClick="tc"
                         android:text="@string/terms_and_conditions"
+                        android:paddingStart="@dimen/_2sdp"
                         android:textColor="@color/white"
                         android:fontFamily="@font/poppins"
                         android:textSize="14sp" />
@@ -231,6 +233,7 @@
                         android:justificationMode="inter_word"
                         android:onClick="pp"
                         android:text="@string/pp_p"
+                        android:paddingStart="@dimen/_2sdp"
                         android:fontFamily="@font/poppins"
                         android:textColor="@color/white"
                         android:textSize="14sp" />

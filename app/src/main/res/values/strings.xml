@@ -55,6 +55,8 @@ on your device.</font></string>
     <string name="saved">Saved</string>
     <string name="status_not_available">Status not Available</string>
     <string name="no_videos_here">No Videos here</string>
+    <string name="no_audios_here">No Audios here</string>
+    <string name="no_playlists_here">No Playlists here</string>
     <string name="due_to_system_restriction_we_need_you_to_authorize_statuses_to_download_files">Due to system restriction, we need you to authorize .Statuses to download files.</string>
     <string name="continue_">Continue</string>
     <string name="songs">Songs</string>

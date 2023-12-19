@@ -64,10 +64,10 @@ public class MusicPlayerService extends Service {
                 .setChannelImportance(IMPORTANCE_HIGH)
                 .setSmallIconResourceId(R.drawable.logo)
                 .setChannelDescriptionResourceId(R.string.app_name)
-                .setPlayActionIconResourceId(R.drawable.play_mp)
-                .setPauseActionIconResourceId(R.drawable.pause_mp)
-                .setPreviousActionIconResourceId(R.drawable.previous)
-                .setNextActionIconResourceId(R.drawable.next_mp)
+//                .setPlayActionIconResourceId(R.drawable.play_mp)
+//                .setPauseActionIconResourceId(R.drawable.pause_mp)
+//                .setPreviousActionIconResourceId(R.drawable.previous)
+//                .setNextActionIconResourceId(R.drawable.next_mp)
                 .setChannelNameResourceId(R.string.app_name)
                 .build();
 

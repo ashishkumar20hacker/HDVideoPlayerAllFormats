@@ -165,6 +165,8 @@
                     android:fontFamily="@font/poppins"
                     android:paddingStart="@dimen/_5sdp"
                     android:text="@string/videos"
+                    android:singleLine="true"
+                    android:maxLines="1"
                     android:textColor="@color/white"
                     android:textSize="@dimen/_15sdp" />
 
@@ -229,6 +231,17 @@
                 android:padding="@dimen/_8sdp"
                 android:rotation="180"
                 android:src="@drawable/arrowright" />
+
+
+            <ImageView
+                android:id="@+id/fav"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/unfav"
+                android:layout_alignParentEnd="true"
+                android:layout_margin="@dimen/_5sdp"
+                android:padding="@dimen/_8sdp" />
+
 
         </RelativeLayout>
 

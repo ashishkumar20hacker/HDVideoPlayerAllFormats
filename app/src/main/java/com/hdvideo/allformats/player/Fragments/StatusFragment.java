@@ -334,18 +334,19 @@ public class StatusFragment extends Fragment {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
 
-            new Handler().postDelayed(() -> {
-                if (getActivity() != null) {
+//            new Handler().postDelayed(() -> {
+//                if (getActivity() != null) {
                     StatusAdapter mAdapter = new StatusAdapter(getActivity(), videoList, true);
                     binding.statusRv.setAdapter(mAdapter);
-                    binding.statusRv.setVisibility(View.VISIBLE);
-                }
-            }, 300);
+//                }
+//            }, 300);
 
             if (videoList == null || videoList.size() == 0) {
+                binding.statusRv.setVisibility(View.GONE);
                 binding.noStatus.setVisibility(View.VISIBLE);
             } else {
                 binding.noStatus.setVisibility(View.GONE);
+                binding.statusRv.setVisibility(View.VISIBLE);
             }
         }
     }

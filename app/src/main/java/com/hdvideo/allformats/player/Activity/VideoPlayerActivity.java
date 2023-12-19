@@ -1,5 +1,6 @@
 package com.hdvideo.allformats.player.Activity;
 
+import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainAudioPlayerInfoList;
 import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainVideoPlayerInfoList;
 
 import androidx.annotation.NonNull;
@@ -39,11 +40,15 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.material.snackbar.Snackbar;
+import com.hdvideo.allformats.player.Extras.SharePreferences;
 import com.hdvideo.allformats.player.Extras.Utils;
+import com.hdvideo.allformats.player.Models.AudioInfo;
+import com.hdvideo.allformats.player.Models.VideoInfo;
 import com.hdvideo.allformats.player.R;
 import com.hdvideo.allformats.player.databinding.ActivityVideoPlayerBinding;
 
 import java.io.File;
+import java.util.List;
 
 public class VideoPlayerActivity extends AppCompatActivity {
 
@@ -59,6 +64,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
     private boolean mVisible;
     boolean isSubtitlesOn = true;
     DefaultTrackSelector defaultTrackSelector;
+    SharePreferences preferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +74,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         binding = ActivityVideoPlayerBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        preferences = new SharePreferences(this);
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         binding.volumeSeek.setMax(audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
         binding.volumeSeek.setProgress(audioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
@@ -217,6 +224,40 @@ public class VideoPlayerActivity extends AppCompatActivity {
             toggleFullScreen();
         });
 
+        binding.fav.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                List<VideoInfo> list = preferences.getFavVideoDataModelList();
+                VideoInfo newDataModel = mainVideoPlayerInfoList.get(currentVideoPosition);
+                boolean found = false;
+
+// Check if the list already contains a VideoInfo with the same path as newDataModel
+                for (int i = 0; i < list.size(); i++) {
+                    if (list.get(i).getPath().equals(newDataModel.getPath())) {
+                        list.remove(i);
+                        found = true;
+// Remove the item with the same path
+                        break; // Stop after removing the first occurrence
+                    }
+                }
+// Add the new instance if it wasn't found in the list
+                if (!found) {
+                    list.add(newDataModel);
+                    binding.fav.setImageResource(R.drawable.fav);
+                } else {
+                    binding.fav.setImageResource(R.drawable.unfav);
+                }
+
+/*// Ensure the list doesn't exceed the maximum size (15 in this case)
+                if (list.size() > 15) {
+                    list.subList(0, list.size() - 15).clear(); // Remove oldest elements if exceeding size
+                }*/
+
+// Update the preferences with the modified list
+                preferences.putFavVideoDataModelList(list);
+            }
+        });
+
         binding.seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -340,12 +381,36 @@ public class VideoPlayerActivity extends AppCompatActivity {
         }
     }
 
+    public void checkFav() {
+        List<VideoInfo> list = preferences.getFavVideoDataModelList();
+        VideoInfo newDataModel = mainVideoPlayerInfoList.get(currentVideoPosition);
+        boolean found = false;
+
+// Check if the list already contains a VideoInfo with the same path as newDataModel
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getPath().equals(newDataModel.getPath())) {
+                found = true;
+// Remove the item with the same path
+                break; // Stop after removing the first occurrence
+            }
+        }
+// Add the new instance if it wasn't found in the list
+        if (found) {
+            binding.fav.setImageResource(R.drawable.fav);
+        } else {
+            binding.fav.setImageResource(R.drawable.unfav);
+        }
+
+        list = null;
+    }
+
     private void loadPlayVideo(int position) {
         Uri uri = Uri.fromFile(new File(mainVideoPlayerInfoList.get(position).getPath()));
         MediaItem mediaItem = MediaItem.fromUri(uri);
         exoPlayer.setMediaItem(mediaItem);
         exoPlayer.prepare();
         exoPlayer.play();
+        checkFav();
 //        adjustPlayerSize();
 
         binding.playPause.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.pause_vp));

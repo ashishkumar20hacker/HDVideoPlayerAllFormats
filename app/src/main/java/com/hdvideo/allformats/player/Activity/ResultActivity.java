@@ -6,11 +6,11 @@ import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainOldFi
 import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainVideoInfoList;
 import static com.hdvideo.allformats.player.Extras.Utils.openMenuDialog;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
@@ -54,6 +54,7 @@ public class ResultActivity extends AppCompatActivity {
     List<AudioInfo> audioInfoList;
 
     boolean isPresentInPlaylist = false;
+    String s = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,33 +73,33 @@ public class ResultActivity extends AppCompatActivity {
 
         if (type == 0) {
             videoInfoList = Utils.getAllVideosFromFolder(this, path);
-            setAdapterForVideos();
+            setAdapterForVideos(type);
         } else if (type == 1) {
             audioInfoList = Utils.getSongsFromAlbum(this, name);
-            setAdapterForAudios();
+            setAdapterForAudios(type);
         } else if (type == 2) {
             audioInfoList = Utils.getSongsByArtist(this, name);
-            setAdapterForAudios();
+            setAdapterForAudios(type);
         } else if (type == 3) {
             isPresentInPlaylist = true;
             videoInfoList = preferences.getVideoListForPlaylist(name);
-            setAdapterForVideos();
+            setAdapterForVideos(type);
         } else if (type == 4) {
             videoInfoList = preferences.getVideoDataModelList();
-            setAdapterForVideos();
+            setAdapterForVideos(type);
         } else if (type == 5) {
             videoInfoList = preferences.getFavVideoDataModelList();
-            setAdapterForVideos();
+            setAdapterForVideos(type);
         } else if (type == 6) {
             isPresentInPlaylist = true;
             audioInfoList = preferences.getAudioListForPlaylist(name);
-            setAdapterForAudios();
+            setAdapterForAudios(type);
         } else if (type == 7) {
             audioInfoList = preferences.getAudioDataModelList();
-            setAdapterForAudios();
+            setAdapterForAudios(type);
         } else if (type == 8) {
             audioInfoList = preferences.getFavAudioDataModelList();
-            setAdapterForAudios();
+            setAdapterForAudios(type);
         } else if (type == 9) {
 //            AppAsyncTask.AllVideos allVideos = new AppAsyncTask.AllVideos(ResultActivity.this, new AppInterfaces.AllVideosListener() {
 //                @Override
@@ -143,8 +144,8 @@ public class ResultActivity extends AppCompatActivity {
     }
 
     private void setAdapterForAudioPlaylist() {
-        binding.resultRv.setLayoutManager(new GridLayoutManager(ResultActivity.this,2));
-        AudioPlayListAdapter adapter = new AudioPlayListAdapter(true,new AudioPlayListAdapter.AudioPlayListClickListener() {
+        binding.resultRv.setLayoutManager(new GridLayoutManager(ResultActivity.this, 2));
+        AudioPlayListAdapter adapter = new AudioPlayListAdapter(true, new AudioPlayListAdapter.AudioPlayListClickListener() {
             @Override
             public void onDelete() {
                 setAdapterForPlaylist();
@@ -152,19 +153,27 @@ public class ResultActivity extends AppCompatActivity {
 
             @Override
             public void onItemClick(String playlistName) {
-                preferences.addItemsToAudioPlaylist(playlistName,mainAudioInfoList);
+                preferences.addItemsToAudioPlaylist(playlistName, mainAudioInfoList);
                 Toast.makeText(ResultActivity.this, getString(R.string.added_to_playlist), Toast.LENGTH_SHORT).show();
                 finish();
             }
         });
         binding.resultRv.setAdapter(adapter);
         adapter.submitList(preferences.getAudioPlaylists());
+        if (preferences.getAudioPlaylists().size() > 0) {
+            binding.noStatus.setVisibility(View.GONE);
+            binding.resultRv.setVisibility(View.VISIBLE);
+        } else {
+            binding.noStatus.setText(getString(R.string.no_playlists_here));
+            binding.resultRv.setVisibility(View.GONE);
+            binding.noStatus.setVisibility(View.VISIBLE);
+        }
     }
 
     private void setAdapterForPlaylist() {
-        binding.resultRv.setLayoutManager(new GridLayoutManager(ResultActivity.this,2));
+        binding.resultRv.setLayoutManager(new GridLayoutManager(ResultActivity.this, 2));
 
-        PlayListAdapter adapter = new PlayListAdapter(true,new PlayListAdapter.PlayListClickListener() {
+        PlayListAdapter adapter = new PlayListAdapter(true, new PlayListAdapter.PlayListClickListener() {
             @Override
             public void onDelete() {
                 setAdapterForPlaylist();
@@ -172,13 +181,21 @@ public class ResultActivity extends AppCompatActivity {
 
             @Override
             public void onItemClick(String playlistName) {
-                preferences.addItemsToPlaylist(playlistName,mainVideoInfoList);
+                preferences.addItemsToPlaylist(playlistName, mainVideoInfoList);
                 Toast.makeText(ResultActivity.this, getString(R.string.added_to_playlist), Toast.LENGTH_SHORT).show();
                 finish();
             }
         });
         binding.resultRv.setAdapter(adapter);
         adapter.submitList(preferences.getPlaylists());
+        if (preferences.getPlaylists().size() > 0) {
+            binding.noStatus.setVisibility(View.GONE);
+            binding.resultRv.setVisibility(View.VISIBLE);
+        } else {
+            binding.noStatus.setText(getString(R.string.no_playlists_here));
+            binding.resultRv.setVisibility(View.GONE);
+            binding.noStatus.setVisibility(View.VISIBLE);
+        }
     }
 
     private void checkAudioList() {
@@ -186,7 +203,7 @@ public class ResultActivity extends AppCompatActivity {
             @Override
             public void run() {
                 if (audioInfoList.size() != 0) {
-                    setAdapterForAudios();
+                    setAdapterForAudios(type);
                 } else {
                     checkAudioList();
                 }
@@ -199,7 +216,7 @@ public class ResultActivity extends AppCompatActivity {
             @Override
             public void run() {
                 if (videoInfoList.size() != 0) {
-                    setAdapterForVideos();
+                    setAdapterForVideos(type);
                 } else {
                     checkVideoList();
                 }
@@ -207,14 +224,23 @@ public class ResultActivity extends AppCompatActivity {
         }, 500);
     }
 
-    private void setAdapterForAudios() {
+    private void setAdapterForAudios(int type) {
+        if (this.type == 6) s = binding.title.getText().toString();
         MusicAdapter adapter = new MusicAdapter(ResultActivity.this, audioInfoList, new AppInterfaces.OnMoreListener() {
             @Override
             public void onMoreClick(long id, String name, String path, String size, ImageView more) {
-                openMenuDialog(ResultActivity.this,id, name, path, size, false, more, binding.title.getText().toString());
+                openMenuDialog(ResultActivity.this, id, name, path, size, false, more, binding.title.getText().toString());
             }
         });
         binding.resultRv.setAdapter(adapter);
+        if (audioInfoList.size() > 0) {
+            binding.noStatus.setVisibility(View.GONE);
+            binding.resultRv.setVisibility(View.VISIBLE);
+        } else {
+            binding.noStatus.setText(getString(R.string.no_audios_here));
+            binding.resultRv.setVisibility(View.GONE);
+            binding.noStatus.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -238,14 +264,23 @@ public class ResultActivity extends AppCompatActivity {
     }
 
 
-    private void setAdapterForVideos() {
+    private void setAdapterForVideos(int type) {
+        if (this.type == 3) s = binding.title.getText().toString();
         VideoAdapter adapter = new VideoAdapter(ResultActivity.this, videoInfoList, new AppInterfaces.OnMoreListener() {
             @Override
             public void onMoreClick(long id, String name, String path, String size, ImageView more) {
-                openMenuDialog(ResultActivity.this,id, name, path, size, true, more, binding.title.getText().toString());
+                openMenuDialog(ResultActivity.this, id, name, path, size, true, more, s);
             }
         });
         binding.resultRv.setAdapter(adapter);
+        if (videoInfoList.size() > 0) {
+            binding.noStatus.setVisibility(View.GONE);
+            binding.resultRv.setVisibility(View.VISIBLE);
+        } else {
+            binding.noStatus.setText(getString(R.string.no_videos_here));
+            binding.resultRv.setVisibility(View.GONE);
+            binding.noStatus.setVisibility(View.VISIBLE);
+        }
     }
 
     private void sortDialog() {
@@ -328,9 +363,11 @@ public class ResultActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        /*super.onBackPressed();*/
+        startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
         mainAudioInfoList = null;
         mainVideoInfoList = null;
     }
