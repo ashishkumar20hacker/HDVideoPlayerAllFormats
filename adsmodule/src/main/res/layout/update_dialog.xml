@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="5dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="10dp">
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/iv_update"
+            android:layout_width="match_parent"
+            android:layout_height="130dp"
+            android:layout_centerHorizontal="true"
+            android:scaleType="centerCrop"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/update_anim" />
+
+        <TextView
+            android:id="@+id/tv_updateText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/iv_update"
+            android:gravity="center"
+            android:textStyle="italic"
+            android:layout_marginTop="20dp"
+            android:textSize="16sp"
+            android:paddingHorizontal="8dp"
+            android:layout_marginHorizontal="10dp"
+            android:text="A newer version of this app is available. Please update the app for better experience."
+            android:textColor="@color/black" />
+
+
+            <TextView
+                android:id="@+id/tv_install"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textAllCaps="true"
+                android:layout_below="@id/tv_updateText"
+                android:layout_marginTop="20dp"
+                android:layout_marginHorizontal="8dp"
+                android:background="@drawable/button_bg"
+                android:gravity="center"
+                android:paddingVertical="13dp"
+                android:text="Update"
+                android:textColor="@color/white"
+                android:textSize="16dp" />
+
+    </RelativeLayout>
+
+
+</androidx.cardview.widget.CardView>

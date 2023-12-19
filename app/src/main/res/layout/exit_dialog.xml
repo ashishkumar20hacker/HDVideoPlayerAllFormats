@@ -45,11 +45,12 @@
                 android:paddingHorizontal="@dimen/_20sdp"
                 android:src="@drawable/stars" />
 
-            <!--                <com.adsmodule.api.adsModule.poppinsfaces.CustomView-->
-            <!--                    android:layout_width="match_parent"-->
-            <!--                    android:layout_height="wrap_content"-->
-            <!--                    android:layout_marginTop="@dimen/_15sdp"-->
-            <!--                    app:adType="small"/>-->
+            <com.adsmodule.api.adsModule.views.NativeView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:adType="SMALL"
+                android:layout_marginTop="@dimen/_15sdp"
+                app:borderColor="@color/light_blue"/>
             <TextView
                 android:id="@+id/do_you"
                 android:layout_width="match_parent"

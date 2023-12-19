@@ -1,5 +1,7 @@
 package com.hdvideo.allformats.player.Activity;
 
+import static com.hdvideo.allformats.player.SingletonClasses.LifeCycleOwner.activity;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -7,6 +9,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 
+import com.adsmodule.api.adsModule.models.AdsDataRequestModel;
+import com.adsmodule.api.adsModule.retrofit.AdsApiHandler;
+import com.adsmodule.api.adsModule.utils.AdUtils;
+import com.adsmodule.api.adsModule.utils.AppInterfaces;
+import com.adsmodule.api.adsModule.utils.Globals;
 import com.hdvideo.allformats.player.Extras.Constants;
 import com.hdvideo.allformats.player.Extras.SharePreferences;
 import com.hdvideo.allformats.player.Extras.Utils;
@@ -25,8 +32,20 @@ public class SplashActivity extends AppCompatActivity {
 
         preferences = new SharePreferences(this);
 
-        nextActivity();
-
+        if(Globals.isConnectingToInternet(SplashActivity.this)){
+            AdsApiHandler.callAdsApi(activity, com.adsmodule.api.adsModule.utils.Constants.BASE_URL, new AdsDataRequestModel(getPackageName(), ""), adsResponseModel -> {
+                if(adsResponseModel!=null){
+                    AdUtils.showAppStartAd(activity, adsResponseModel, new AppInterfaces.AppStartInterface() {
+                        @Override
+                        public void loadStatus(boolean isLoaded) {
+                            nextActivity();
+                        }
+                    });
+                }
+                else new Handler().postDelayed(this::nextActivity, 1000);
+            });
+        }
+        else new Handler().postDelayed(this::nextActivity, 1500);
     }
     private void nextActivity() {
         final Handler handler = new Handler();

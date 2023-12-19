@@ -33,13 +33,13 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <!--<com.adsmodule.api.adsModule.interfaces.CustomView
+            <com.adsmodule.api.adsModule.views.NativeView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:adType="full"
-                app:borderColor="@color/blue"
+                app:adType="FULL"
+                app:borderColor="@color/light_blue"
                 android:layout_margin="@dimen/_3sdp"
-                app:placeholder="@drawable/perm_ph" />-->
+                app:placeholder="@drawable/perm_img" />
 
             <LinearLayout
                 android:id="@+id/switch_ll"

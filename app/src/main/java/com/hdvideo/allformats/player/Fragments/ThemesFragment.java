@@ -131,6 +131,28 @@ public class ThemesFragment extends Fragment {
                 targetPosition = Math.min(lastItem, Math.max(targetPosition, firstItem));
                 themesAdapter.currentPos = targetPosition;
                 themesAdapter.notifyDataSetChanged();
+                switch (targetPosition){
+                    case 0:
+                        binding.preview.setImageResource(R.drawable.theme_preview_one);
+                        themeId = R.style.Base_Theme_HDVideoPlayerAllFormats;
+                        break;
+                    case 1:
+                        binding.preview.setImageResource(R.drawable.theme_preview_two);
+                        themeId = R.style.Base_Theme_HDVideoPlayerAllFormats_Second;
+                        break;
+                    case 2:
+                        binding.preview.setImageResource(R.drawable.theme_preview_three);
+                        themeId = R.style.Base_Theme_HDVideoPlayerAllFormats_Third;
+                        break;
+                    case 3:
+                        binding.preview.setImageResource(R.drawable.theme_preview_four);
+                        themeId = R.style.Base_Theme_HDVideoPlayerAllFormats_Fourth;
+                        break;
+                    case 4:
+                        binding.preview.setImageResource(R.drawable.theme_preview_five);
+                        themeId = R.style.Base_Theme_HDVideoPlayerAllFormats_Fifth;
+                        break;
+                }
                 return targetPosition;
             }
         };

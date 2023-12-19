@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/bg"
     android:orientation="vertical"
     tools:context=".Fragments.ThemesFragment">
@@ -17,6 +18,13 @@
         android:textColor="@color/white"
         android:textSize="16sp"
         android:textStyle="bold" />
+
+    <com.adsmodule.api.adsModule.views.NativeView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:adType="SMALL"
+        android:layout_margin="@dimen/_3sdp"
+        app:borderColor="@color/light_blue"/>
 
     <ScrollView
         android:layout_width="match_parent"

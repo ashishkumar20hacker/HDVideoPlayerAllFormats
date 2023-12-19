@@ -17,6 +17,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_above="@id/adView"
         android:orientation="vertical">
 
         <LinearLayout
@@ -83,5 +84,13 @@
             android:textStyle="bold" />
 
     </LinearLayout>
+
+
+    <com.adsmodule.api.adsModule.views.NativeView
+        android:id="@+id/adView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:adType="MEDIUM"
+        android:layout_alignParentBottom="true"/>
 
 </RelativeLayout>

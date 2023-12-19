@@ -38,6 +38,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
+        android:layout_weight="1"
         android:scrollbars="none">
 
         <LinearLayout
@@ -213,5 +214,11 @@
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
+
+
+    <com.adsmodule.api.adsModule.views.NativeView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:adType="SMALL"/>
 
 </LinearLayout>

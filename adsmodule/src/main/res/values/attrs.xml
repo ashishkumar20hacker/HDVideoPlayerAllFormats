@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="BannerView">
+        <attr name="isCollapsible" format="boolean"/>
+    </declare-styleable>
+    <declare-styleable name="NativeView">
+        <attr name="adType" format="enum">
+            <enum name="SMALL" value="0"/>
+            <enum name="MEDIUM" value="1"/>
+            <enum name="FULL" value="2"/>
+        </attr>
+        <attr name="placeholder" format="reference" />
+        <attr name="borderColor" format="color" />
+    </declare-styleable>
+</resources>

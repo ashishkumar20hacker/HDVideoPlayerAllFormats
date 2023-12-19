@@ -25,8 +25,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/ob_blur"
             android:layout_weight="1"
+            android:background="@drawable/ob_blur"
             android:gravity="center"
             android:orientation="vertical">
 
@@ -49,10 +49,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/_45sdp"
                 android:layout_marginTop="@dimen/_15sdp"
+                android:fontFamily="@font/poppins"
                 android:gravity="center"
                 android:text="@string/desc_1"
                 android:textColor="@color/white"
-                android:fontFamily="@font/poppins"
                 android:textSize="14sp" />
 
             <LinearLayout
@@ -83,8 +83,8 @@
                     android:drawableEnd="@drawable/arrowright"
                     android:drawablePadding="@dimen/_10sdp"
                     android:elevation="@dimen/_10sdp"
-                    android:gravity="center"
                     android:fontFamily="@font/poppins"
+                    android:gravity="center"
                     android:paddingHorizontal="@dimen/_20sdp"
                     android:paddingVertical="@dimen/_8sdp"
                     android:text="@string/next"
@@ -93,14 +93,18 @@
 
             </LinearLayout>
 
-            <!-- <com.adsmodule.api.adsModule.interfaces.CustomView
-                 android:layout_width="match_parent"
-                 android:layout_height="wrap_content"
-                 android:layout_alignParentBottom="true"
-                 app:adType="medium"
-                 app:cardCornerRadius="0dp"
-                 app:cardElevation="0dp" />-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
 
+                <com.adsmodule.api.adsModule.views.NativeView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:adType="MEDIUM"
+                    app:cardCornerRadius="0dp"
+                    app:cardElevation="0dp" />
+            </LinearLayout>
         </LinearLayout>
 
     </LinearLayout>

@@ -67,6 +67,7 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
+import com.adsmodule.api.adsModule.utils.AdUtils;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.MediaMetadata;
@@ -499,7 +500,7 @@ public class Utils {
     public static PendingIntent createNotificationPendingIntent(Context context, ExoPlayer exoPlayer) {
         SharePreferences preferences = new SharePreferences(context);
         Intent intent = new Intent(context, MusicPlayerActivity.class);
-        int selectedMusicPosition= preferences.getInt(SELECTED_MUSIC_POSITION, 0);
+        int selectedMusicPosition = preferences.getInt(SELECTED_MUSIC_POSITION, 0);
         intent.putExtra("currentMusicPosition", selectedMusicPosition);
         intent.putExtra("currentPlayingMusicPosition", exoPlayer.getCurrentMediaItemIndex());
         intent.putExtra("fromNotification", true);
@@ -526,7 +527,7 @@ public class Utils {
             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
                 MusicPlayerService.ServiceBinder binder = (MusicPlayerService.ServiceBinder) iBinder;
                 MusicPlayerService musicPlayerService = binder.getMusicPlayerService();
-                ExoPlayer player= musicPlayerService.exoplayer;
+                ExoPlayer player = musicPlayerService.exoplayer;
                 exoPlayerInterface.getResult(player);
             }
 
@@ -540,28 +541,28 @@ public class Utils {
     }
 
     public static ArrayList<AudioInfo> getMusicModelArrayListFromMediaList(List<MediaItem> mediaItemList) {
-        ArrayList<AudioInfo> arrayList= new ArrayList<>();
-        for(MediaItem item : mediaItemList){
-            String musicFilePath= Objects.requireNonNull(item.mediaMetadata.extras).getString("musicFilePath");
-            long musicId= item.mediaMetadata.extras.getLong("musicID", 0);
-            String musicTitle= String.valueOf(item.mediaMetadata.title);
-            String musicArtist= String.valueOf(item.mediaMetadata.artist);
-            String musicAlbum= String.valueOf(item.mediaMetadata.albumTitle);
-            long musicDuration= item.mediaMetadata.extras.getLong("musicDuration", 0);
-            String musicMimeType= item.mediaMetadata.extras.getString("musicMimeType");
-            long musicSize= item.mediaMetadata.extras.getLong("musicSize", 0);
-            long musicDateAdded= item.mediaMetadata.extras.getLong("musicDateAdded", 0);
-            long musicDateModified= item.mediaMetadata.extras.getLong("musicDateModified", 0);
-            long musicLastDateViewed= item.mediaMetadata.extras.getLong("musicLastViewedDate", 0);
-            boolean isFavourite= item.mediaMetadata.extras.getBoolean("isFavourite", false);
+        ArrayList<AudioInfo> arrayList = new ArrayList<>();
+        for (MediaItem item : mediaItemList) {
+            String musicFilePath = Objects.requireNonNull(item.mediaMetadata.extras).getString("musicFilePath");
+            long musicId = item.mediaMetadata.extras.getLong("musicID", 0);
+            String musicTitle = String.valueOf(item.mediaMetadata.title);
+            String musicArtist = String.valueOf(item.mediaMetadata.artist);
+            String musicAlbum = String.valueOf(item.mediaMetadata.albumTitle);
+            long musicDuration = item.mediaMetadata.extras.getLong("musicDuration", 0);
+            String musicMimeType = item.mediaMetadata.extras.getString("musicMimeType");
+            long musicSize = item.mediaMetadata.extras.getLong("musicSize", 0);
+            long musicDateAdded = item.mediaMetadata.extras.getLong("musicDateAdded", 0);
+            long musicDateModified = item.mediaMetadata.extras.getLong("musicDateModified", 0);
+            long musicLastDateViewed = item.mediaMetadata.extras.getLong("musicLastViewedDate", 0);
+            boolean isFavourite = item.mediaMetadata.extras.getBoolean("isFavourite", false);
 //            arrayList.add(new AudioInfo(Objects.requireNonNull(musicFilePath), musicId, musicTitle, musicArtist, musicAlbum, musicDuration,
 //                    musicMimeType, musicSize, musicDateAdded, musicDateModified, musicLastDateViewed, isFavourite));
-            arrayList.add(new AudioInfo(musicId, musicFilePath, musicTitle,musicSize));
+            arrayList.add(new AudioInfo(musicId, musicFilePath, musicTitle, musicSize));
         }
         return arrayList;
     }
 
-    public static String getArtistName(Activity activity,long id) {
+    public static String getArtistName(Activity activity, long id) {
 // Assuming song.getId() contains the audio file's ID
         long audioFileId = id;
 
@@ -975,13 +976,10 @@ public class Utils {
     }
 
     public static void nextActivity(Activity activity, Class<?> className) {
-        //       AdUtils.showInterstitialAd(adsResponseModel.getInterstitial_ads().getAdx(), activity, new AppInterfaces.InterstitialADInterface() {
-        //           @Override
-//            public void adLoadState(boolean isLoaded) {
-        activity.startActivity(new Intent(activity, className));
-        activity.overridePendingTransition(0, 0);
-//            }
-//        });
+        AdUtils.showInterstitialAd(activity, isLoaded -> {
+            activity.startActivity(new Intent(activity, className));
+            activity.overridePendingTransition(0, 0);
+        });
     }
 
 //    public static void nextActivity(Activity activity, Class<?> className, String key, DataModel value) {
@@ -996,73 +994,59 @@ public class Utils {
 
 
     public static void nextActivity(Activity activity, Class<?> className, String key, String value) {
-        //       AdUtils.showInterstitialAd(adsResponseModel.getInterstitial_ads().getAdx(), activity, new AppInterfaces.InterstitialADInterface() {
-        //           @Override
-//            public void adLoadState(boolean isLoaded) {
-        activity.startActivity(new Intent(activity, className).putExtra(key, value));
-        activity.overridePendingTransition(0, 0);
+        AdUtils.showInterstitialAd(activity, isLoaded -> {
+            activity.startActivity(new Intent(activity, className).putExtra(key, value));
+            activity.overridePendingTransition(0, 0);
 //            }
-//        });
+        });
     }
 
     public static void nextActivity(Activity activity, Class<?> className, String key, boolean value) {
-        //       AdUtils.showInterstitialAd(adsResponseModel.getInterstitial_ads().getAdx(), activity, new AppInterfaces.InterstitialADInterface() {
-        //           @Override
-//            public void adLoadState(boolean isLoaded) {
-        activity.startActivity(new Intent(activity, className).putExtra(key, value));
-        activity.overridePendingTransition(0, 0);
+        AdUtils.showInterstitialAd(activity, isLoaded -> {
+            activity.startActivity(new Intent(activity, className).putExtra(key, value));
+            activity.overridePendingTransition(0, 0);
 //            }
-//        });
+        });
     }
 
     public static void nextActivity(Activity activity, Class<?> className, String key, int value) {
-        //       AdUtils.showInterstitialAd(adsResponseModel.getInterstitial_ads().getAdx(), activity, new AppInterfaces.InterstitialADInterface() {
-        //           @Override
-//            public void adLoadState(boolean isLoaded) {
-        activity.startActivity(new Intent(activity, className).putExtra(key, value));
-        activity.overridePendingTransition(0, 0);
+        AdUtils.showInterstitialAd(activity, isLoaded -> {
+            activity.startActivity(new Intent(activity, className).putExtra(key, value));
+            activity.overridePendingTransition(0, 0);
 //            }
-//        });
+        });
     }
 
     public static void nextFinishActivity(Activity activity, Class<?> className) {
-        //       AdUtils.showInterstitialAd(adsResponseModel.getInterstitial_ads().getAdx(), activity, new AppInterfaces.InterstitialADInterface() {
-        //           @Override
-//            public void adLoadState(boolean isLoaded) {
-        activity.startActivity(new Intent(activity, className));
-        activity.finish();
+        AdUtils.showInterstitialAd(activity, isLoaded -> {
+            activity.startActivity(new Intent(activity, className));
+            activity.finish();
 //            }
-//        });
+        });
     }
 
     public static void nextFinishActivity(Activity activity, Class<?> className, String key, String value) {
-        //       AdUtils.showInterstitialAd(adsResponseModel.getInterstitial_ads().getAdx(), activity, new AppInterfaces.InterstitialADInterface() {
-        //           @Override
-//            public void adLoadState(boolean isLoaded) {
-        activity.startActivity(new Intent(activity, className).putExtra(key, value));
-        activity.finish();
+        AdUtils.showInterstitialAd(activity, isLoaded -> {
+            activity.startActivity(new Intent(activity, className).putExtra(key, value));
+            activity.finish();
 //            }
-//        });
+        });
     }
 
     public static void nextFinishActivity(Activity activity, Class<?> className, String key, boolean value) {
-        //       AdUtils.showInterstitialAd(adsResponseModel.getInterstitial_ads().getAdx(), activity, new AppInterfaces.InterstitialADInterface() {
-        //           @Override
-//            public void adLoadState(boolean isLoaded) {
-        activity.startActivity(new Intent(activity, className).putExtra(key, value));
-        activity.finish();
+        AdUtils.showInterstitialAd(activity, isLoaded -> {
+            activity.startActivity(new Intent(activity, className).putExtra(key, value));
+            activity.finish();
 //            }
-//        });
+        });
     }
 
     public static void nextFinishActivity(Activity activity, Class<?> className, String key, int value) {
-        //       AdUtils.showInterstitialAd(adsResponseModel.getInterstitial_ads().getAdx(), activity, new AppInterfaces.InterstitialADInterface() {
-        //           @Override
-//            public void adLoadState(boolean isLoaded) {
-        activity.startActivity(new Intent(activity, className).putExtra(key, value));
-        activity.finish();
+        AdUtils.showInterstitialAd(activity, isLoaded -> {
+            activity.startActivity(new Intent(activity, className).putExtra(key, value));
+            activity.finish();
 //            }
-//        });
+        });
     }
 
     public static void applyGradientOnTv(TextView tv, String color1, String color2) {
@@ -1405,7 +1389,6 @@ public class Utils {
 // Add the new instance if it wasn't found in the list
         return found;
     }
-
 
 
     private static void renameDialog(Activity activity, long id, String path, boolean isVideo) {

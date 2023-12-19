@@ -52,10 +52,9 @@
 
     </ScrollView>
 
-    <!--<com.adsmodule.api.adsModule.interfaces.CustomView
+    <com.adsmodule.api.adsModule.views.NativeView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:adType="medium"
-        app:textColor="@color/black" />-->
+        app:adType="MEDIUM" />
 
 </LinearLayout>

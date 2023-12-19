@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.adsmodule.api.adsModule.utils.AdUtils;
 import com.hdvideo.allformats.player.Models.ObDataModel;
 import com.hdvideo.allformats.player.R;
 import com.hdvideo.allformats.player.databinding.ViewOnboardScreenBinding;

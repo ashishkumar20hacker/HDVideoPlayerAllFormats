@@ -33,9 +33,7 @@ public class OnboardingActivity extends AppCompatActivity {
                 if (binding.viewPager.getCurrentItem() + 1 < adapter.getItemCount()) {
                     binding.viewPager.setCurrentItem(binding.viewPager.getCurrentItem() + 1);
                 } else {
-
                     nextActivity(OnboardingActivity.this, TermsOfUseActivity.class);
-
                 }
             }
         });

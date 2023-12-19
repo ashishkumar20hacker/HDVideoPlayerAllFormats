@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     tools:context=".Fragments.SettingsFragment">
 
@@ -94,5 +95,12 @@
             android:textSize="16sp" />
 
     </LinearLayout>
+
+
+    <com.adsmodule.api.adsModule.views.NativeView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:adType="FULL"
+        android:layout_margin="@dimen/_3sdp"/>
 
 </LinearLayout>
