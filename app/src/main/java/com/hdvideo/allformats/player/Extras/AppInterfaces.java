@@ -40,4 +40,8 @@ public class AppInterfaces {
         void getResult(ExoPlayer player);
     }
 
+
+    public interface ThemeAdapterInterface{
+        void setPadding(int width);
+    }
 }

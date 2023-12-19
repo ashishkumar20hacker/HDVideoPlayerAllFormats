@@ -36,12 +36,13 @@
                 android:adjustViewBounds="true"
                 android:src="@drawable/theme_preview_one" />
 
-            <androidx.viewpager2.widget.ViewPager2
+            <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/viewPager"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
-                android:layout_marginVertical="@dimen/_20sdp"
-                android:paddingHorizontal="130dp" />
+                android:paddingHorizontal="@dimen/_105sdp"
+                android:clipToPadding="false"
+                android:layout_marginVertical="@dimen/_20sdp"/>
 
             <TextView
                 android:id="@+id/apply_bt"

@@ -1,6 +1,9 @@
 package com.hdvideo.allformats.player.Adapter;
 
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -8,6 +11,7 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.hdvideo.allformats.player.Extras.AppInterfaces;
 import com.hdvideo.allformats.player.Models.ThemesModal;
 import com.hdvideo.allformats.player.databinding.ItemThemesBinding;
 
@@ -20,7 +24,8 @@ public class ThemesAdapter extends RecyclerView.Adapter<ThemesAdapter.ViewHolder
 
     public int currentPos = 0;
     List<ThemesModal> list;
-
+    boolean isSize;
+    int size = 0;
     public ThemesAdapter(List<ThemesModal> list) {
         super();
         this.list = list;
@@ -39,6 +44,8 @@ public class ThemesAdapter extends RecyclerView.Adapter<ThemesAdapter.ViewHolder
         if(holder.getAdapterPosition() == currentPos){
             holder.binding.image.setImageResource(modal.getSelected_image());
         }else holder.binding.image.setImageResource(modal.getUnselected_image());
+
+
     }
 
     @Override

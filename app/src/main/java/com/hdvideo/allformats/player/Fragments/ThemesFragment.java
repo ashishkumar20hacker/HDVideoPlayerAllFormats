@@ -4,11 +4,15 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.CompositePageTransformer;
 import androidx.viewpager2.widget.MarginPageTransformer;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.os.Handler;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.hdvideo.allformats.player.Adapter.ThemesAdapter;
+import com.hdvideo.allformats.player.Extras.AppInterfaces;
 import com.hdvideo.allformats.player.Extras.Constants;
 import com.hdvideo.allformats.player.Extras.SharePreferences;
 import com.hdvideo.allformats.player.Models.ThemesModal;
@@ -92,12 +97,50 @@ public class ThemesFragment extends Fragment {
 
         preferences = new SharePreferences(requireContext());
 
+        binding.viewPager.setLayoutManager(new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false));
+
         fillList();
+
+        LinearSnapHelper snapHelper = new LinearSnapHelper() {
+            @Override
+            public int findTargetSnapPosition(RecyclerView.LayoutManager layoutManager, int velocityX, int velocityY) {
+                View centerView = findSnapView(layoutManager);
+                if (centerView == null)
+                    return RecyclerView.NO_POSITION;
+
+                int position = layoutManager.getPosition(centerView);
+                int targetPosition = -1;
+                if (layoutManager.canScrollHorizontally()) {
+                    if (velocityX < 0) {
+                        targetPosition = position - 1;
+                    } else {
+                        targetPosition = position + 1;
+                    }
+                }
+
+                if (layoutManager.canScrollVertically()) {
+                    if (velocityY < 0) {
+                        targetPosition = position - 1;
+                    } else {
+                        targetPosition = position + 1;
+                    }
+                }
+
+                final int firstItem = 0;
+                final int lastItem = layoutManager.getItemCount() - 1;
+                targetPosition = Math.min(lastItem, Math.max(targetPosition, firstItem));
+                themesAdapter.currentPos = targetPosition;
+                themesAdapter.notifyDataSetChanged();
+                return targetPosition;
+            }
+        };
 
         themesAdapter = new ThemesAdapter(themesModalList);
         binding.viewPager.setAdapter(themesAdapter);
+        snapHelper.attachToRecyclerView(binding.viewPager);
 
-        binding.viewPager.setClipToPadding(false);
+
+        /* binding.viewPager.setClipToPadding(false);
         binding.viewPager.setClipChildren(false);
         binding.viewPager.setOffscreenPageLimit(5);
         binding.viewPager.getChildAt(0).setOverScrollMode(RecyclerView.OVER_SCROLL_NEVER);
@@ -132,7 +175,7 @@ public class ThemesFragment extends Fragment {
                 }
             }
         });
-
+*/
         binding.applyBt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -93,13 +93,7 @@ public class PermissionsActivity extends AppCompatActivity {
                     requestStoragePermission(PermissionsActivity.this);
                 }
             }
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == NOTIFICATION_PERMISSION_REQ_CODE){
+        } else if (requestCode == NOTIFICATION_PERMISSION_REQ_CODE){
             if (Utils.isNotificationPermissionGranted(PermissionsActivity.this) && isStoragePermissionGranted(PermissionsActivity.this)){
                 startActivity(new Intent(PermissionsActivity.this, DashboardActivity.class));
             }
@@ -111,4 +105,5 @@ public class PermissionsActivity extends AppCompatActivity {
             }
         }
     }
+
 }

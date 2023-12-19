@@ -316,9 +316,21 @@ public class Utils {
         }
     }
 
-    public static void requestNotificationPermission(Activity activity) {
+    public static void requestNotificationPermission2(Activity activity) {
         Intent intent = new Intent(Settings.ACTION_ALL_APPS_NOTIFICATION_SETTINGS);
         activity.startActivityForResult(intent, NOTIFICATION_PERMISSION_REQ_CODE);
+    }
+
+    public static void requestNotificationPermission(Activity activity) {
+
+        if (SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            activity.requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, NOTIFICATION_PERMISSION_REQ_CODE);
+        } else {
+            Intent intent = new Intent(Settings.ACTION_ALL_APPS_NOTIFICATION_SETTINGS);
+            activity.startActivityForResult(intent, NOTIFICATION_PERMISSION_REQ_CODE);
+        }
+
+
     }
 
     public static void requestOverlayPermission(Activity activity) {
