@@ -34,6 +34,7 @@ import com.hdvideo.allformats.player.Models.VideoInfo;
 import com.hdvideo.allformats.player.R;
 import com.hdvideo.allformats.player.databinding.ActivityDashboardBinding;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DashboardActivity extends AppCompatActivity {
@@ -50,7 +51,7 @@ public class DashboardActivity extends AppCompatActivity {
     public static List<AudioInfo> mainAudioPlayerInfoList;
     public static String mainOldFilePath = "";
     public static String mainNewFileName = "";
-
+    int type = 111;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,8 +63,33 @@ public class DashboardActivity extends AppCompatActivity {
         preferences.putBoolean(Constants.isFirstRun, false);
 
         setTheme(preferences.getInt(Constants.THEME_ID, R.style.Base_Theme_HDVideoPlayerAllFormats));
-
-        switchUi(2);
+        type = getIntent().getIntExtra("type", 0);
+        if (type == 0) {
+            switchUi(2);
+        } else if (type == 1) {
+            switchUi(1);
+        } else if (type == 2) {
+            switchUi(1);
+        } else if (type == 3) {
+            switchUi(2);
+        } else if (type == 4) {
+            switchUi(2);
+        } else if (type == 5) {
+            switchUi(2);
+        } else if (type == 6) {
+            switchUi(1);
+        } else if (type == 7) {
+            switchUi(1);
+        } else if (type == 8) {
+            switchUi(1);
+        } else if (type == 9) {
+            type = 111;
+            switchUi(2);
+        } else if (type == 10) {
+            switchUi(1);
+        } else {
+            switchUi(2);
+        }
 
         binding.statusNav.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -201,7 +227,7 @@ public class DashboardActivity extends AppCompatActivity {
                 changeFragment(new StatusFragment());
                 break;
             case 1 :
-                changeFragment(new MusicFragment());
+                changeFragment(new MusicFragment(type));
                 binding.settingsNav.setImageResource(R.drawable.nav_unselected_settings);
                 binding.themesNav.setImageResource(R.drawable.nav_unselected_themes);
                 binding.homeNav.setImageResource(R.drawable.nav_unselected_home);
@@ -209,7 +235,7 @@ public class DashboardActivity extends AppCompatActivity {
                 binding.musicNav.setImageResource(R.drawable.nav_selected_music);
                 break;
             case 2 :
-                changeFragment(new HomeFragment());
+                changeFragment(new HomeFragment(type));
                 binding.settingsNav.setImageResource(R.drawable.nav_unselected_settings);
                 binding.themesNav.setImageResource(R.drawable.nav_unselected_themes);
                 binding.musicNav.setImageResource(R.drawable.nav_unselected_music);

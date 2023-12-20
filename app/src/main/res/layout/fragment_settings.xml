@@ -96,11 +96,16 @@
 
     </LinearLayout>
 
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="1"/>
 
     <com.adsmodule.api.adsModule.views.NativeView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:adType="FULL"
-        android:layout_margin="@dimen/_3sdp"/>
+        android:layout_marginBottom="@dimen/_80sdp"
+        android:layout_marginTop="@dimen/_3sdp"/>
 
 </LinearLayout>

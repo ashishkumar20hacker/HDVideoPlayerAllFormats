@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.adsmodule.api.adsModule.utils.Globals;
 import com.hdvideo.allformats.player.Models.AudioInfo;
 import com.hdvideo.allformats.player.Models.VideoInfo;
 
@@ -35,14 +36,14 @@ public class AppAsyncTask {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-               showProgressDialog(activity,"Loading");
+            Globals.showLoadingDialog(activity);
         }
 
         @Override
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
             allVideosListener.getAllVideos(videoInfoList);
-              hideProgressDialog();
+              Globals.hideLoadingDialog();
         }
 
     }
@@ -68,14 +69,14 @@ public class AppAsyncTask {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-               showProgressDialog(activity,"Loading");
+              Globals.showLoadingDialog(activity);
         }
 
         @Override
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
             videosFolderListener.getVideosFolder(videoInfoList);
-              hideProgressDialog();
+              Globals.hideLoadingDialog();
         }
 
     }
@@ -101,14 +102,14 @@ public class AppAsyncTask {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-               showProgressDialog(activity,"Loading");
+              Globals.showLoadingDialog(activity);
         }
 
         @Override
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
             videosFolderListener.getAlbums(videoInfoList);
-              hideProgressDialog();
+              Globals.hideLoadingDialog();
         }
 
     }
@@ -134,14 +135,14 @@ public class AppAsyncTask {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-               showProgressDialog(activity,"Loading");
+              Globals.showLoadingDialog(activity);
         }
 
         @Override
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
             videosFolderListener.getArtists(videoInfoList);
-              hideProgressDialog();
+              Globals.hideLoadingDialog();
         }
 
     }
@@ -167,14 +168,14 @@ public class AppAsyncTask {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-               showProgressDialog(activity,"Loading");
+              Globals.showLoadingDialog(activity);
         }
 
         @Override
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
             allAudiosListener.getAllAudios(audioInfoList);
-              hideProgressDialog();
+              Globals.hideLoadingDialog();
         }
 
     }

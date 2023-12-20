@@ -35,6 +35,7 @@
     <string name="permission_required">Permission Required</string>
     <string name="perm_storage_txt"><font color="#FFFFFF" size="16"><b>External Storage</b></font>\n<font color="#FFFFFF" size="14">Allow to access photos and media
 on your device.</font></string>
+    <string name="perm_storage_txt2"><font color="#FFFFFF" size="16"><b>Notifications</b></font>\n<font color="#FFFFFF" size="14">Allow app to send notifications on your device.</font></string>
 
     <string name="subtitle_off">Subtitle Off</string>
     <string name="subtitle_on">Subtitle On</string>

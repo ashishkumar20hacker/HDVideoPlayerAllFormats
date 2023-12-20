@@ -1,13 +1,10 @@
 package com.hdvideo.allformats.player.Fragments;
 
-import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainNewFileName;
-import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainOldFilePath;
 import static com.hdvideo.allformats.player.Extras.Utils.nextActivity;
 import static com.hdvideo.allformats.player.Extras.Utils.openMenuDialog;
 
 import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainVideoInfoList;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
@@ -17,7 +14,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -49,52 +45,15 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link HomeFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class HomeFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    int type = 111;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public HomeFragment() {
+    public HomeFragment(int type) {
+        this.type = type;
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment HomeFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static HomeFragment newInstance(String param1, String param2) {
-        HomeFragment fragment = new HomeFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
 
     FragmentHomeBinding binding;
     SharePreferences preferences;
@@ -108,11 +67,17 @@ public class HomeFragment extends Fragment {
         binding = FragmentHomeBinding.inflate(getLayoutInflater());
         preferences = new SharePreferences(requireContext());
 
-        binding.allVideoRv.setLayoutManager(new LinearLayoutManager(requireContext(),LinearLayoutManager.VERTICAL,false));
-        binding.foldersRv.setLayoutManager(new LinearLayoutManager(requireContext(),LinearLayoutManager.VERTICAL,false));
-        binding.playlistRv.setLayoutManager(new GridLayoutManager(requireContext(),2));
+        binding.allVideoRv.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false));
+        binding.foldersRv.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false));
+        binding.playlistRv.setLayoutManager(new GridLayoutManager(requireContext(), 2));
 
-        switchUi(0);
+        if (type == 0) {
+            switchUi(2);
+        } else if (type == 3 || type == 4 || type == 5) {
+            switchUi(1);
+        } else {
+            switchUi(0);
+        }
 
         binding.allVideosTab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -158,14 +123,14 @@ public class HomeFragment extends Fragment {
         binding.recentsBt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(requireActivity(), ResultActivity.class).putExtra("type",4).putExtra("name",getString(R.string.recently_played)));
+                startActivity(new Intent(requireActivity(), ResultActivity.class).putExtra("type", 4).putExtra("name", getString(R.string.recently_played)));
             }
         });
 
         binding.favoritesBt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(requireActivity(), ResultActivity.class).putExtra("type",5).putExtra("name",getString(R.string.favorites)));
+                startActivity(new Intent(requireActivity(), ResultActivity.class).putExtra("type", 5).putExtra("name", getString(R.string.favorites)));
             }
         });
 
@@ -178,7 +143,7 @@ public class HomeFragment extends Fragment {
                         binding.searchEd.requestFocus();
                     } else {
                         mainVideoInfoList = mainList;
-                        startActivity(new Intent(requireActivity(), ResultActivity.class).putExtra("type",9).putExtra("name",binding.searchEd.getText().toString().toLowerCase().trim()));
+                        startActivity(new Intent(requireActivity(), ResultActivity.class).putExtra("type", 9).putExtra("name", binding.searchEd.getText().toString().toLowerCase().trim()));
                         binding.searchEd.setText("");
                     }
                     return true;
@@ -197,7 +162,7 @@ public class HomeFragment extends Fragment {
                 VideoFoldersAdapter foldersAdapter = new VideoFoldersAdapter(requireActivity(), folderList, new VideoFoldersAdapter.OnFolderClickListener() {
                     @Override
                     public void onFolderClick(String folderName, String path) {
-                        startActivity(new Intent(requireActivity(), ResultActivity.class).putExtra("type",0).putExtra("name",folderName).putExtra("path",path));
+                        startActivity(new Intent(requireActivity(), ResultActivity.class).putExtra("type", 0).putExtra("name", folderName).putExtra("path", path));
                     }
                 });
                 binding.foldersRv.setAdapter(foldersAdapter);
@@ -214,7 +179,7 @@ public class HomeFragment extends Fragment {
                 VideoAdapter adapter = new VideoAdapter(requireActivity(), allVideoList, new AppInterfaces.OnMoreListener() {
                     @Override
                     public void onMoreClick(long id, String name, String path, String size, ImageView more) {
-                        openMenuDialog(requireActivity(),id,name, path, size, true, more, "");
+                        openMenuDialog(requireActivity(), id, name, path, size, true, more, "");
                     }
                 });
                 binding.allVideoRv.setAdapter(adapter);
@@ -319,7 +284,7 @@ public class HomeFragment extends Fragment {
                 VideoAdapter adapter = new VideoAdapter(requireActivity(), mainList, new AppInterfaces.OnMoreListener() {
                     @Override
                     public void onMoreClick(long id, String name, String path, String size, ImageView more) {
-                        openMenuDialog(requireActivity(),id,name, path, size, true, more, "");
+                        openMenuDialog(requireActivity(), id, name, path, size, true, more, "");
                     }
                 });
                 binding.allVideoRv.setAdapter(adapter);
@@ -352,7 +317,7 @@ public class HomeFragment extends Fragment {
         createBt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (nameEd.getText().toString().isEmpty()){
+                if (nameEd.getText().toString().isEmpty()) {
                     nameEd.setError("Please enter playlist name");
                     nameEd.requestFocus();
                 } else {
@@ -375,7 +340,7 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onItemClick(String playlistName) {
-                startActivity(new Intent(requireActivity(), ResultActivity.class).putExtra("type",3).putExtra("name", playlistName));
+                startActivity(new Intent(requireActivity(), ResultActivity.class).putExtra("type", 3).putExtra("name", playlistName));
             }
         });
         binding.playlistRv.setAdapter(adapter);
@@ -403,7 +368,7 @@ public class HomeFragment extends Fragment {
                 binding.playlistLl.setVisibility(View.VISIBLE);
                 binding.add.setVisibility(View.VISIBLE);
                 ExecutorService service = Executors.newSingleThreadExecutor();
-                service.execute(()->{
+                service.execute(() -> {
                     binding.countAll.setText(Utils.getVideoList(requireContext()).size() + " Videos");
                     binding.countRecents.setText(preferences.getVideoDataModelList().size() + " Videos");
                     binding.countFav.setText(preferences.getFavVideoDataModelList().size() + " Videos");

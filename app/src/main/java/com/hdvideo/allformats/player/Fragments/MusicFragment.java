@@ -45,52 +45,15 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link MusicFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class MusicFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public MusicFragment() {
+    int type = 10;
+    public MusicFragment(int type) {
+        this.type = type;
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment MusicFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static MusicFragment newInstance(String param1, String param2) {
-        MusicFragment fragment = new MusicFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
 
     FragmentMusicBinding binding;
     SharePreferences preferences;
@@ -107,8 +70,15 @@ public class MusicFragment extends Fragment {
         binding.artistRv.setLayoutManager(new GridLayoutManager(requireContext(), 3));
         binding.playlistRv.setLayoutManager(new GridLayoutManager(requireContext(), 2));
 
-
-        switchUi(0);
+        if (type == 1){
+            switchUi(2);
+        } else if (type == 2) {
+            switchUi(3);
+        } else if (type == 6 || type == 7 || type == 8) {
+            switchUi(1);
+        } else {
+            switchUi(0);
+        }
 
         binding.allSongsTab.setOnClickListener(new View.OnClickListener() {
             @Override

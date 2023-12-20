@@ -57,6 +57,61 @@ public class ResultActivity extends AppCompatActivity {
     String s = "";
 
     @Override
+    public void onBackPressed() {
+        mainAudioInfoList = null;
+        mainVideoInfoList = null;
+        switch (type) {
+            case 0:
+                startActivity(new Intent(ResultActivity.this, DashboardActivity.class).putExtra("type", 0));
+                finish();
+                break;
+            case 1:
+                startActivity(new Intent(ResultActivity.this, DashboardActivity.class).putExtra("type", 1));
+                finish();
+                break;
+            case 2:
+                startActivity(new Intent(ResultActivity.this, DashboardActivity.class).putExtra("type", 2));
+                finish();
+                break;
+            case 3:
+                startActivity(new Intent(ResultActivity.this, DashboardActivity.class).putExtra("type", 3));
+                finish();
+                break;
+            case 4:
+                startActivity(new Intent(ResultActivity.this, DashboardActivity.class).putExtra("type", 4));
+                finish();
+                break;
+            case 5:
+                startActivity(new Intent(ResultActivity.this, DashboardActivity.class).putExtra("type", 5));
+                finish();
+                break;
+            case 6:
+                startActivity(new Intent(ResultActivity.this, DashboardActivity.class).putExtra("type", 6));
+                finish();
+                break;
+            case 7:
+                startActivity(new Intent(ResultActivity.this, DashboardActivity.class).putExtra("type", 7));
+                finish();
+                break;
+            case 8:
+                startActivity(new Intent(ResultActivity.this, DashboardActivity.class).putExtra("type", 8));
+                finish();
+                break;
+            case 9:
+                startActivity(new Intent(ResultActivity.this, DashboardActivity.class).putExtra("type", 9));
+                finish();
+                break;
+            case 10:
+                startActivity(new Intent(ResultActivity.this, DashboardActivity.class).putExtra("type", 10));
+                break;
+            case 11:
+            case 12:
+                super.onBackPressed();
+                break;
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Utils.makeStatusBarTransparent2(this);
@@ -101,9 +156,7 @@ public class ResultActivity extends AppCompatActivity {
             audioInfoList = preferences.getFavAudioDataModelList();
             setAdapterForAudios(type);
         } else if (type == 9) {
-//            AppAsyncTask.AllVideos allVideos = new AppAsyncTask.AllVideos(ResultActivity.this, new AppInterfaces.AllVideosListener() {
-//                @Override
-//                public void getAllVideos(List<VideoInfo> allVideoList) {
+            binding.title.setText("Search result for \"" + name +"\"");
             videoInfoList = new ArrayList<>();
             for (VideoInfo d : mainVideoInfoList) {
                 if (d.getName().toLowerCase() != null && d.getName().contains(name)) {
@@ -111,13 +164,8 @@ public class ResultActivity extends AppCompatActivity {
                 }
             }
             checkVideoList();
-//                }
-//            });
-//            allVideos.execute();
         } else if (type == 10) {
-//            AppAsyncTask.AllSongs allSongs = new AppAsyncTask.AllSongs(ResultActivity.this, new AppInterfaces.AllAudiosListener() {
-//                @Override
-//                public void getAllAudios(List<AudioInfo> allAudioList) {
+            binding.title.setText("Search result for \"" + name +"\"");
             audioInfoList = new ArrayList<>();
             for (AudioInfo d : mainAudioInfoList) {
                 if (d.getName().toLowerCase() != null && d.getName().contains(name)) {
@@ -125,9 +173,6 @@ public class ResultActivity extends AppCompatActivity {
                 }
             }
             checkAudioList();
-//                }
-//            });
-//            allSongs.execute();
         } else if (type == 11) {
             setAdapterForPlaylist();
         } else if (type == 12) {
@@ -138,6 +183,13 @@ public class ResultActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 sortDialog();
+            }
+        });
+
+        binding.backbt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
             }
         });
 
@@ -229,7 +281,7 @@ public class ResultActivity extends AppCompatActivity {
         MusicAdapter adapter = new MusicAdapter(ResultActivity.this, audioInfoList, new AppInterfaces.OnMoreListener() {
             @Override
             public void onMoreClick(long id, String name, String path, String size, ImageView more) {
-                openMenuDialog(ResultActivity.this, id, name, path, size, false, more, binding.title.getText().toString());
+                openMenuDialog(ResultActivity.this, id, name, path, size, false, more, s);
             }
         });
         binding.resultRv.setAdapter(adapter);
@@ -361,15 +413,6 @@ public class ResultActivity extends AppCompatActivity {
         });
 
         dialog.show();
-    }
-
-    @SuppressLint("MissingSuperCall")
-    @Override
-    public void onBackPressed() {
-        /*super.onBackPressed();*/
-        startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
-        mainAudioInfoList = null;
-        mainVideoInfoList = null;
     }
 
     @Override

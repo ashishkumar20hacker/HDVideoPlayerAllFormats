@@ -48,8 +48,8 @@ public class SplashActivity extends AppCompatActivity {
         else new Handler().postDelayed(this::nextActivity, 1500);
     }
     private void nextActivity() {
-        final Handler handler = new Handler();
-        handler.postDelayed(() -> {
+//        final Handler handler = new Handler();
+//        handler.postDelayed(() -> {
 
             boolean isFirstRun = preferences.getBoolean(Constants.isFirstRun, true);
             Log.e(TAG, "isFirstRun: " + isFirstRun);
@@ -60,11 +60,11 @@ public class SplashActivity extends AppCompatActivity {
             } else {
 //                String lang = preferences.getString(SELECTED_LANGUAGE);
 //                LocaleHelper.setLocale(SplashActivity.this, lang, "db");
-                startActivity(new Intent(SplashActivity.this, DashboardActivity.class));
+                startActivity(new Intent(SplashActivity.this, DashboardActivity.class).putExtra("type", 111));
                 finish();
             }
 
-        }, 1500);
+//        }, 1500);
     }
 
 }

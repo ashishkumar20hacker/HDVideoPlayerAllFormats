@@ -35,6 +35,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="24dp"
+                android:layout_marginTop="@dimen/_10sdp"
                 android:elevation="@dimen/_10sdp"
                 android:fontFamily="@font/poppins"
                 android:gravity="center"
@@ -102,6 +103,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:adType="MEDIUM"
+                    android:layout_gravity="bottom"
                     app:cardCornerRadius="0dp"
                     app:cardElevation="0dp" />
             </LinearLayout>

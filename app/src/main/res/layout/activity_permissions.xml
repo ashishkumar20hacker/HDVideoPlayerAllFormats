@@ -37,8 +37,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:adType="FULL"
-                app:borderColor="@color/light_blue"
-                android:layout_margin="@dimen/_3sdp"
+                app:borderColor="@color/white"
+                android:layout_margin="@dimen/_8sdp"
                 app:placeholder="@drawable/perm_img" />
 
             <LinearLayout
@@ -71,6 +71,44 @@
 
                 <ImageView
                     android:id="@+id/switch_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:elevation="@dimen/_5sdp"
+                    android:src="@drawable/off"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/switch_ll2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/card_bg"
+                android:elevation="@dimen/_5sdp"
+                android:layout_margin="@dimen/_10sdp"
+                android:padding="@dimen/_10sdp">
+
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/_5sdp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/perm_storage_two" />
+
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/poppins"
+                    android:padding="@dimen/_10sdp"
+                    android:text="@string/perm_storage_txt2" />
+
+                <ImageView
+                    android:id="@+id/switch_2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"

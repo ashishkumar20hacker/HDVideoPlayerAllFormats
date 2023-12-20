@@ -20,11 +20,18 @@
         android:layout_above="@id/adView"
         android:orientation="vertical">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
-            android:orientation="horizontal"
             android:layout_marginTop="@dimen/_20sdp">
+
+            <ImageView
+                android:id="@+id/backbt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/_8sdp"
+                android:layout_centerVertical="true"
+                android:src="@drawable/backbt"/>
 
             <TextView
                 android:id="@+id/title"
@@ -33,7 +40,6 @@
                 android:paddingHorizontal="@dimen/_20sdp"
                 android:fontFamily="@font/poppins"
                 android:gravity="center"
-                android:text="@string/app_name"
                 android:textColor="@color/white"
                 android:textSize="16sp"
                 android:singleLine="true"
@@ -57,9 +63,10 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:padding="@dimen/_12sdp"
+                android:visibility="gone"
                 android:src="@drawable/sort" />
 
-        </LinearLayout>
+        </RelativeLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/result_rv"

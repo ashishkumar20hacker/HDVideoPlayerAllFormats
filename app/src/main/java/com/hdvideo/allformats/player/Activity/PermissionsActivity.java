@@ -2,6 +2,7 @@ package com.hdvideo.allformats.player.Activity;
 
 import static com.hdvideo.allformats.player.Extras.Utils.NOTIFICATION_PERMISSION_REQ_CODE;
 import static com.hdvideo.allformats.player.Extras.Utils.STORAGE_PERMISSION_REQ_CODE;
+import static com.hdvideo.allformats.player.Extras.Utils.isNotificationPermissionGranted;
 import static com.hdvideo.allformats.player.Extras.Utils.isStoragePermissionGranted;
 import static com.hdvideo.allformats.player.Extras.Utils.makeStatusBarTransparent2;
 import static com.hdvideo.allformats.player.Extras.Utils.pushEffectCardView;
@@ -35,6 +36,10 @@ public class PermissionsActivity extends AppCompatActivity {
         if (isStoragePermissionGranted(this)) {
             binding.switch1.setImageResource(R.drawable.on);
         }
+        if (isNotificationPermissionGranted(this)) {
+            binding.switch2.setImageResource(R.drawable.on);
+        }
+        if (isStoragePermissionGranted(PermissionsActivity.this) && isNotificationPermissionGranted(PermissionsActivity.this)) binding.grantPermission.setText(getString(R.string.next));
 
         binding.switchLl.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,6 +58,23 @@ public class PermissionsActivity extends AppCompatActivity {
                 }
             }
         });
+        binding.switchLl2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!isNotificationPermissionGranted(PermissionsActivity.this)) {
+                    requestNotificationPermission(PermissionsActivity.this);
+                }
+            }
+        });
+
+        binding.switch2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!isNotificationPermissionGranted(PermissionsActivity.this)) {
+                    requestNotificationPermission(PermissionsActivity.this);
+                }
+            }
+        });
 
         binding.grantPermission.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,7 +87,7 @@ public class PermissionsActivity extends AppCompatActivity {
                         } else if (!Utils.isNotificationPermissionGranted(PermissionsActivity.this)){
                             requestNotificationPermission(PermissionsActivity.this);
                         }else {
-                            startActivity(new Intent(PermissionsActivity.this, DashboardActivity.class));
+                            startActivity(new Intent(PermissionsActivity.this, DashboardActivity.class).putExtra("type", 111));
                         }
                     }
                 }, false);
@@ -82,27 +104,20 @@ public class PermissionsActivity extends AppCompatActivity {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 if (isStoragePermissionGranted(PermissionsActivity.this)) {
                     binding.switch1.setImageResource(R.drawable.on);
-                    if (Utils.isNotificationPermissionGranted(PermissionsActivity.this) && isStoragePermissionGranted(PermissionsActivity.this)){
-                        startActivity(new Intent(PermissionsActivity.this, DashboardActivity.class));
-                    }
-                    if (!Utils.isNotificationPermissionGranted(PermissionsActivity.this)){
-                        requestNotificationPermission(PermissionsActivity.this);
-                    }
                 } else {
                     binding.switch1.setImageResource(R.drawable.off);
                     requestStoragePermission(PermissionsActivity.this);
                 }
+                if (isStoragePermissionGranted(PermissionsActivity.this) && isNotificationPermissionGranted(PermissionsActivity.this)) binding.grantPermission.setText(getString(R.string.next));
             }
         } else if (requestCode == NOTIFICATION_PERMISSION_REQ_CODE){
-            if (Utils.isNotificationPermissionGranted(PermissionsActivity.this) && isStoragePermissionGranted(PermissionsActivity.this)){
-                startActivity(new Intent(PermissionsActivity.this, DashboardActivity.class));
-            }
             if (!Utils.isNotificationPermissionGranted(PermissionsActivity.this)){
+                binding.switch2.setImageResource(R.drawable.off);
                 requestNotificationPermission(PermissionsActivity.this);
+            } else {
+                binding.switch2.setImageResource(R.drawable.on);
             }
-            if (!isStoragePermissionGranted(PermissionsActivity.this)) {
-                requestStoragePermission(PermissionsActivity.this);
-            }
+            if (isStoragePermissionGranted(PermissionsActivity.this) && isNotificationPermissionGranted(PermissionsActivity.this)) binding.grantPermission.setText(getString(R.string.next));
         }
     }
 

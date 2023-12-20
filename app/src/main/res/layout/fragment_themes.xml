@@ -23,8 +23,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:adType="SMALL"
-        android:layout_margin="@dimen/_3sdp"
-        app:borderColor="@color/light_blue"/>
+        android:layout_marginHorizontal="@dimen/_8sdp"
+        android:layout_marginBottom="@dimen/_8sdp"
+        app:borderColor="@color/white"/>
 
     <ScrollView
         android:layout_width="match_parent"
