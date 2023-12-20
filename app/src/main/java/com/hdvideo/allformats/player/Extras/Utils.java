@@ -397,8 +397,7 @@ public class Utils {
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain");
             shareIntent.putExtra(Intent.EXTRA_SUBJECT, R.string.app_name);
-            String shareMessage = "Ready to join the offline video revolution? \n"
-                    + "Don't miss out on the endless fun waiting for you with this All Video Downloader App!";
+            String shareMessage = "Check out this amazing app!!";
             shareMessage = shareMessage + "\n\n" + "https://play.google.com/store/apps/details?id=" + /*BuildConfig.APPLICATION_ID +*/ "\n\n";
             shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage);
             activity.startActivity(Intent.createChooser(shareIntent, "Share Via"));

@@ -253,7 +253,7 @@ public class AdUtils {
     }
 
     private static String getNativeAdUnitId() {
-        String adTag = Constants.platformList.get(nativeAdCounter);
+        String adTag = Constants.platformList.get(0);
         return adTag.equals(AdPlatform.Adx.toString()) ? Constants.adsResponseModel.getNative_ads().getAdx()
                 : adTag.equals(AdPlatform.Facebook.toString()) ? Constants.adsResponseModel.getNative_ads().getFacebook()
                 : adTag.equals(AdPlatform.Admob.toString()) ? Constants.adsResponseModel.getNative_ads().getAdmob() : "";
@@ -283,7 +283,7 @@ public class AdUtils {
         if (Constants.IS_NETWORK_AVAILABLE && Constants.adsResponseModel.isShow_ads()) {
 
             String nativeAdUnitId = getNativeAdUnitId();
-            if (Constants.platformList.get(nativeAdCounter).equals(AdPlatform.Facebook.toString())) {
+            if (Constants.platformList.get(0).equals(AdPlatform.Facebook.toString())) {
                 Log.e(TAG, "Native Ad: Facebook Platform Ad triggered");
             } else {
                 // "ca-app-pub-3940256099942544/2247696110" -> Test ID
@@ -430,7 +430,8 @@ public class AdUtils {
                     else {
                         if (preCacheInterstitialAd == null) {
                             AdRequest adRequest = new AdRequest.Builder().build();
-                            String interstitialAdUnitId = getInterstitialAdUnitId(Constants.platformList.get(interstitialAdCounter));
+                            String interstitialAdUnitId = getInterstitialAdUnitId(Constants.platformList.get(0));
+                            // String interstitialAdUnitId = getInterstitialAdUnitId(Constants.platformList.get(interstitialAdCounter)); // Changed to the above. If any issues revert to this
 
                             InterstitialAd.load(activity, interstitialAdUnitId, adRequest,
                                     new InterstitialAdLoadCallback() {
@@ -833,7 +834,7 @@ public class AdUtils {
                     }
                 });
             } else {
-                String backPressInterstitialAdUnitId = getInterstitialAdUnitId(Constants.platformList.get(interstitialAdCounter));
+                String backPressInterstitialAdUnitId = getInterstitialAdUnitId(Constants.platformList.get(0));
                 InterstitialAd.load(activity, backPressInterstitialAdUnitId, adRequest,
                         new InterstitialAdLoadCallback() {
                             @Override

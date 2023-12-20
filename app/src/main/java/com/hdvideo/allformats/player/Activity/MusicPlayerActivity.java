@@ -101,6 +101,7 @@ public class MusicPlayerActivity extends AppCompatActivity {
         doBindService();
         if (!fromNotification)
             startService(new Intent(getApplicationContext(), MusicPlayerService.class));
+
     }
 
     private void doBindService() {

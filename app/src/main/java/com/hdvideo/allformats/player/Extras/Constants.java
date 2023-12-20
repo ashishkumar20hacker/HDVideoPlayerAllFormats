@@ -6,7 +6,7 @@ import java.io.File;
 
 public class Constants {
 
-    public static final String PRIVACY_POLICY = "https://graplemediainc.blogspot.com/p/privacy-policy.html";
+    public static final String PRIVACY_POLICY = "https://technicolorsoundlabinc.blogspot.com/p/privacy-policy.html?m=1";
     public static final String isFirstRun = "isFirstRun";
     public static final String THEME_ID = "THEME_ID";
     public static final String SELECTED_MUSIC_POSITION = "SELECTED_MUSIC_POSITION";

@@ -12,12 +12,16 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -25,6 +29,7 @@ import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
+import android.widget.Toast;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -48,7 +53,9 @@ import com.hdvideo.allformats.player.R;
 import com.hdvideo.allformats.player.databinding.ActivityVideoPlayerBinding;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class VideoPlayerActivity extends AppCompatActivity {
 
@@ -65,6 +72,27 @@ public class VideoPlayerActivity extends AppCompatActivity {
     boolean isSubtitlesOn = true;
     DefaultTrackSelector defaultTrackSelector;
     SharePreferences preferences;
+
+    private String getPathFromURI(Context context, Uri uri) {
+        String filePath = "";
+
+        if ("content".equalsIgnoreCase(uri.getScheme())) {
+            try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    int index = cursor.getColumnIndex(MediaStore.Video.Media.DATA);
+                    if (index != -1) {
+                        filePath = cursor.getString(index);
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return filePath;
+    }
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +120,42 @@ public class VideoPlayerActivity extends AppCompatActivity {
             binding.brightnessSeek.setMax(255);
         }
 
+        try {
+            // For handling video file intent (Improved Version)
+            if (getIntent().getData() != null && "content".equals(getIntent().getData().getScheme())) {
+                mainVideoPlayerInfoList = new ArrayList<>();
+                currentVideoPosition = 0;
+
+                Cursor cursor = getContentResolver().query(Objects.requireNonNull(getIntent().getData()), new String[]{MediaStore.Video.Media.DATA}, null, null, null);
+                if (cursor != null) {
+                    cursor.moveToFirst();
+                    try {
+                        String path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA));
+                        File file = new File(path);
+                        VideoInfo video = new VideoInfo(0, file.getName(), 0, path/*, path*/);
+                        mainVideoPlayerInfoList.add(video);
+                        cursor.close();
+                    } catch (Exception e) {
+                        try {
+                            String tempPath = getPathFromURI(this, getIntent().getData());
+                            File tempFile = new File(tempPath);
+                            VideoInfo video = new VideoInfo(0, tempFile.getName(), 0L, tempFile.getPath());
+                            mainVideoPlayerInfoList.add(video);
+                            cursor.close();
+                        } catch (Exception ex) {
+                            Log.e("TAG", "onCreate2: " + ex.getLocalizedMessage());
+                        }
+                    }
+                    binding.fav.setVisibility(View.GONE);
+                }
+            } else {
+                //do nothing
+            }
+        } catch (Exception e) {
+            Log.e("TAG", "onCreate: " + e.getLocalizedMessage());
+        }
+
+
         if (mainVideoPlayerInfoList != null && mainVideoPlayerInfoList.size() > 0) {
             binding.vpVideoPlayerView.setPlayer(exoPlayer);
             loadPlayVideo(currentVideoPosition);
@@ -101,12 +165,11 @@ public class VideoPlayerActivity extends AppCompatActivity {
         binding.vpVideoPlayerView.setOnClickListener(v -> {
             if (isFullScreen) hide();
             if (binding.controls.getVisibility() == View.VISIBLE) {
-                Utils.loadFadeAnimationToView(binding.controls, View.GONE, 1f, 0f);
-                binding.backbt.setVisibility(View.GONE);
+//                Utils.loadFadeAnimationToView(binding.controls, View.GONE, 1f, 0f);
+                hideControls();
             } else {
                 Utils.loadFadeAnimationToView(binding.controls, View.VISIBLE, 0f, 1f);
-                binding.backbt.setVisibility(View.VISIBLE);
-                hideControls();
+//                binding.backbt.setVisibility(View.VISIBLE);
             }
         });
 
@@ -122,10 +185,10 @@ public class VideoPlayerActivity extends AppCompatActivity {
 
         binding.controls.setOnClickListener(v -> {
             if (binding.controls.getVisibility() == View.VISIBLE) {
-                Utils.loadFadeAnimationToView(binding.controls, View.GONE, 1f, 0f);
+//                Utils.loadFadeAnimationToView(binding.controls, View.GONE, 1f, 0f);
+                hideControls();
             } else {
                 Utils.loadFadeAnimationToView(binding.controls, View.VISIBLE, 0f, 1f);
-                hideControls();
             }
         });
 
@@ -207,12 +270,11 @@ public class VideoPlayerActivity extends AppCompatActivity {
         binding.vpVideoPlayerView.setOnClickListener(v -> {
             if (isFullScreen) hide();
             if (binding.controls.getVisibility() == View.VISIBLE) {
-                Utils.loadFadeAnimationToView(binding.controls, View.GONE, 1f, 0f);
-                binding.backbt.setVisibility(View.GONE);
+//                Utils.loadFadeAnimationToView(binding.controls, View.GONE, 1f, 0f);
+                hideControls();
             } else {
                 Utils.loadFadeAnimationToView(binding.controls, View.VISIBLE, 0f, 1f);
-                binding.backbt.setVisibility(View.VISIBLE);
-                hideControls();
+//                binding.backbt.setVisibility(View.VISIBLE);
             }
         });
 
@@ -433,7 +495,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
                         binding.vpVideoPlayerView.setPlayer(exoPlayer);
                         binding.videoName.setText(mainVideoPlayerInfoList.get(currentVideoPosition).getName());
                         loadPlayVideo(currentVideoPosition);
-                    }
+                    } else binding.playPause.setImageResource(R.drawable.play_vp);
 //                        Snackbar.make(binding.getRoot(), getString(R.string.no_more_videos), Snackbar.LENGTH_SHORT).show();
                 }
             }
