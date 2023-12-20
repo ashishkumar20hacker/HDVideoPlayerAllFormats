@@ -1,12 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/bg"
     android:orientation="vertical"
     tools:context=".Fragments.ThemesFragment">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        android:layout_marginTop="@dimen/_20sdp">
+
+        <ImageView
+            android:id="@+id/apply_bt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:padding="@dimen/_5sdp"
+            android:src="@drawable/done" />
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            android:fontFamily="@font/poppins"
+            android:gravity="center"
+            android:text="@string/themes"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+    </RelativeLayout>
 
     <TextView
         android:layout_width="match_parent"
@@ -17,15 +44,8 @@
         android:text="@string/themes"
         android:textColor="@color/white"
         android:textSize="16sp"
+        android:visibility="gone"
         android:textStyle="bold" />
-
-    <com.adsmodule.api.adsModule.views.NativeView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:adType="SMALL"
-        android:layout_marginHorizontal="@dimen/_8sdp"
-        android:layout_marginBottom="@dimen/_8sdp"
-        app:borderColor="@color/white"/>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -35,8 +55,16 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingBottom="@dimen/_85sdp"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/_85sdp">
+
+            <com.adsmodule.api.adsModule.views.NativeView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/_8sdp"
+                android:layout_marginBottom="@dimen/_8sdp"
+                app:adType="SMALL"
+                app:borderColor="@color/white" />
 
             <ImageView
                 android:id="@+id/preview"
@@ -49,12 +77,11 @@
                 android:id="@+id/viewPager"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
-                android:paddingHorizontal="@dimen/_105sdp"
+                android:layout_marginVertical="@dimen/_20sdp"
                 android:clipToPadding="false"
-                android:layout_marginVertical="@dimen/_20sdp"/>
+                android:paddingHorizontal="@dimen/_105sdp" />
 
             <TextView
-                android:id="@+id/apply_bt"
                 android:layout_width="wrap_content"
                 android:layout_height="45dp"
                 android:layout_gravity="center_horizontal"
@@ -68,6 +95,7 @@
                 android:textAlignment="center"
                 android:textColor="@color/white"
                 android:textSize="16sp"
+                android:visibility="gone"
                 android:textStyle="bold" />
 
         </LinearLayout>

@@ -193,12 +193,12 @@ public class VideoPlayerActivity extends AppCompatActivity {
             if (isSubtitlesOn) {
                 isSubtitlesOn = false;
                 defaultTrackSelector.setParameters(new DefaultTrackSelector.Parameters.Builder(this).setRendererDisabled(C.TRACK_TYPE_VIDEO, true).build());
-                Snackbar.make(binding.getRoot(), getString(R.string.subtitle_off), Snackbar.LENGTH_SHORT).show();
+//                Snackbar.make(binding.getRoot(), getString(R.string.subtitle_off), Snackbar.LENGTH_SHORT).show();
                 binding.cc.setImageResource(R.drawable.cc_off);
             } else {
                 isSubtitlesOn = true;
                 defaultTrackSelector.setParameters(new DefaultTrackSelector.Parameters.Builder(this).setRendererDisabled(C.TRACK_TYPE_VIDEO, false).build());
-                Snackbar.make(binding.getRoot(), getString(R.string.subtitle_on), Snackbar.LENGTH_SHORT).show();
+//                Snackbar.make(binding.getRoot(), getString(R.string.subtitle_on), Snackbar.LENGTH_SHORT).show();
                 binding.cc.setImageResource(R.drawable.cc_on);
 
             }
@@ -433,8 +433,8 @@ public class VideoPlayerActivity extends AppCompatActivity {
                         binding.vpVideoPlayerView.setPlayer(exoPlayer);
                         binding.videoName.setText(mainVideoPlayerInfoList.get(currentVideoPosition).getName());
                         loadPlayVideo(currentVideoPosition);
-                    } else
-                        Snackbar.make(binding.getRoot(), getString(R.string.no_more_videos), Snackbar.LENGTH_SHORT).show();
+                    }
+//                        Snackbar.make(binding.getRoot(), getString(R.string.no_more_videos), Snackbar.LENGTH_SHORT).show();
                 }
             }
 

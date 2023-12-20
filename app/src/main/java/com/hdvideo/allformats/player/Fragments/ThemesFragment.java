@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 
 import com.hdvideo.allformats.player.Adapter.ThemesAdapter;
@@ -29,6 +30,7 @@ import com.hdvideo.allformats.player.databinding.FragmentThemesBinding;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -88,6 +90,7 @@ public class ThemesFragment extends Fragment {
     int themeId = R.style.Base_Theme_HDVideoPlayerAllFormats;
 
     SharePreferences preferences;
+    LinearSnapHelper linearEffectSnapHelper;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -101,7 +104,7 @@ public class ThemesFragment extends Fragment {
 
         fillList();
 
-        LinearSnapHelper snapHelper = new LinearSnapHelper() {
+        /*linearEffectSnapHelper = new LinearSnapHelper() {
             @Override
             public int findTargetSnapPosition(RecyclerView.LayoutManager layoutManager, int velocityX, int velocityY) {
                 View centerView = findSnapView(layoutManager);
@@ -128,8 +131,7 @@ public class ThemesFragment extends Fragment {
 
                 final int firstItem = 0;
                 final int lastItem = layoutManager.getItemCount() - 1;
-                targetPosition = Math.min(lastItem, Math.max(targetPosition, firstItem));
-                themesAdapter.currentPos = targetPosition;
+                themesAdapter.currentPos = Math.min(lastItem, Math.max(targetPosition, firstItem));;
                 themesAdapter.notifyDataSetChanged();
                 switch (targetPosition){
                     case 0:
@@ -155,11 +157,30 @@ public class ThemesFragment extends Fragment {
                 }
                 return targetPosition;
             }
-        };
+        };*/
+        linearEffectSnapHelper = new LinearSnapHelper();
+        linearEffectSnapHelper.attachToRecyclerView(binding.viewPager);
+        themesAdapter = new ThemesAdapter();
 
-        themesAdapter = new ThemesAdapter(themesModalList);
+//        themesAdapter.setHasStableIds(true);
         binding.viewPager.setAdapter(themesAdapter);
-        snapHelper.attachToRecyclerView(binding.viewPager);
+//        binding.viewPager.setItemViewCacheSize(themesAdapter.getItemCount());
+        binding.viewPager.setLayoutManager(new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false));
+        themesAdapter.submitList(themesModalList);
+        binding.viewPager.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                if (themesAdapter.getItemCount() > 0) {
+                    binding.viewPager.smoothScrollToPosition(0);
+                }
+                binding.viewPager.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+            }
+        });
+        setEffectsScrollView(themesModalList);
+/*
+        binding.viewPager.setAdapter(themesAdapter);
+        linearEffectSnapHelper.attachToRecyclerView(binding.viewPager);
+*/
 
 
         /* binding.viewPager.setClipToPadding(false);
@@ -207,6 +228,49 @@ public class ThemesFragment extends Fragment {
         });
 
         return binding.getRoot();
+    }
+
+
+    private void setEffectsScrollView(List<ThemesModal> effects) {
+        LinearLayoutManager linearLayoutManager = (LinearLayoutManager) binding.viewPager.getLayoutManager();
+        linearEffectSnapHelper.findSnapView(linearLayoutManager);
+        binding.viewPager.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    View centerView = linearEffectSnapHelper.findSnapView(linearLayoutManager);
+                    int pos = linearLayoutManager.getPosition(centerView);
+                    Log.e("Snapped Item Position:", "" + pos);
+                    themesAdapter.currentPos = pos;
+
+                    themesAdapter.notifyDataSetChanged();
+                    switch (pos) {
+                        case 0:
+                            binding.preview.setImageResource(R.drawable.theme_preview_one);
+                            themeId = R.style.Base_Theme_HDVideoPlayerAllFormats;
+                            break;
+                        case 1:
+                            binding.preview.setImageResource(R.drawable.theme_preview_two);
+                            themeId = R.style.Base_Theme_HDVideoPlayerAllFormats_Second;
+                            break;
+                        case 2:
+                            binding.preview.setImageResource(R.drawable.theme_preview_three);
+                            themeId = R.style.Base_Theme_HDVideoPlayerAllFormats_Third;
+                            break;
+                        case 3:
+                            binding.preview.setImageResource(R.drawable.theme_preview_four);
+                            themeId = R.style.Base_Theme_HDVideoPlayerAllFormats_Fourth;
+                            break;
+                        case 4:
+                            binding.preview.setImageResource(R.drawable.theme_preview_five);
+                            themeId = R.style.Base_Theme_HDVideoPlayerAllFormats_Fifth;
+                            break;
+                    }
+                }
+            }
+        });
     }
 
     private void fillList() {

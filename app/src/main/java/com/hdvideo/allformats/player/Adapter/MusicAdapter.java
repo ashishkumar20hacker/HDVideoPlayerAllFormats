@@ -3,6 +3,7 @@ package com.hdvideo.allformats.player.Adapter;
 import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainAudioPlayerInfoList;
 import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainVideoPlayerInfoList;
 import static com.hdvideo.allformats.player.Extras.Constants.SELECTED_MUSIC_POSITION;
+import static com.hdvideo.allformats.player.Extras.Utils.formatFileSize;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -47,7 +48,7 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull MusicAdapter.ViewHolder holder, int position) {
         holder.binding.name.setText(videosInFolder.get(position).getName());
-        holder.binding.size.setText(videosInFolder.get(position).getSizeInMB() + " KB");
+        holder.binding.size.setText(formatFileSize(videosInFolder.get(position).getSizeInMB()));
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

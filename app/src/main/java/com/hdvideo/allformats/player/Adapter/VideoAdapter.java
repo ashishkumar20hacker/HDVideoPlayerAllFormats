@@ -1,6 +1,7 @@
 package com.hdvideo.allformats.player.Adapter;
 
 import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainVideoPlayerInfoList;
+import static com.hdvideo.allformats.player.Extras.Utils.formatFileSize;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -44,7 +45,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
     public void onBindViewHolder(@NonNull VideoAdapter.ViewHolder holder, int position) {
         Glide.with(activity).load(videosInFolder.get(position).getPath()).into(holder.binding.previewIv);
         holder.binding.name.setText(videosInFolder.get(position).getName());
-        holder.binding.size.setText(videosInFolder.get(position).getSizeInMB() + " MB");
+        holder.binding.size.setText(formatFileSize(videosInFolder.get(position).getSizeInMB()));
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

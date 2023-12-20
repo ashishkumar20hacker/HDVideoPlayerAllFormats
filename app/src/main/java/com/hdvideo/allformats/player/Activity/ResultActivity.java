@@ -1,9 +1,15 @@
 package com.hdvideo.allformats.player.Activity;
 
 import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainAudioInfoList;
+import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainId;
+import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainIsPresentInPlaylist;
+import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainIsVideo;
 import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainNewFileName;
 import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainOldFilePath;
+import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainSize;
 import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainVideoInfoList;
+import static com.hdvideo.allformats.player.Extras.Utils.getAudioPlayListName;
+import static com.hdvideo.allformats.player.Extras.Utils.getPlayListName;
 import static com.hdvideo.allformats.player.Extras.Utils.openMenuDialog;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,10 +40,13 @@ import com.hdvideo.allformats.player.Extras.AppInterfaces;
 import com.hdvideo.allformats.player.Extras.SharePreferences;
 import com.hdvideo.allformats.player.Extras.Utils;
 import com.hdvideo.allformats.player.Models.AudioInfo;
+import com.hdvideo.allformats.player.Models.AudioPlaylistModel;
 import com.hdvideo.allformats.player.Models.VideoInfo;
+import com.hdvideo.allformats.player.Models.VideoPlaylistModel;
 import com.hdvideo.allformats.player.R;
 import com.hdvideo.allformats.player.databinding.ActivityResultBinding;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,43 +72,53 @@ public class ResultActivity extends AppCompatActivity {
         switch (type) {
             case 0:
                 startActivity(new Intent(ResultActivity.this, DashboardActivity.class).putExtra("type", 0));
-                finish();
+                    overridePendingTransition(0,0);
+                    finish();
                 break;
             case 1:
                 startActivity(new Intent(ResultActivity.this, DashboardActivity.class).putExtra("type", 1));
-                finish();
+                    overridePendingTransition(0,0);
+                    finish();
                 break;
             case 2:
                 startActivity(new Intent(ResultActivity.this, DashboardActivity.class).putExtra("type", 2));
-                finish();
+                    overridePendingTransition(0,0);
+                    finish();
                 break;
             case 3:
                 startActivity(new Intent(ResultActivity.this, DashboardActivity.class).putExtra("type", 3));
-                finish();
+                    overridePendingTransition(0,0);
+                    finish();
                 break;
             case 4:
                 startActivity(new Intent(ResultActivity.this, DashboardActivity.class).putExtra("type", 4));
-                finish();
+                    overridePendingTransition(0,0);
+                    finish();
                 break;
             case 5:
                 startActivity(new Intent(ResultActivity.this, DashboardActivity.class).putExtra("type", 5));
-                finish();
+                    overridePendingTransition(0,0);
+                    finish();
                 break;
             case 6:
                 startActivity(new Intent(ResultActivity.this, DashboardActivity.class).putExtra("type", 6));
-                finish();
+                    overridePendingTransition(0,0);
+                    finish();
                 break;
             case 7:
                 startActivity(new Intent(ResultActivity.this, DashboardActivity.class).putExtra("type", 7));
-                finish();
+                    overridePendingTransition(0,0);
+                    finish();
                 break;
             case 8:
                 startActivity(new Intent(ResultActivity.this, DashboardActivity.class).putExtra("type", 8));
-                finish();
+                    overridePendingTransition(0,0);
+                    finish();
                 break;
             case 9:
                 startActivity(new Intent(ResultActivity.this, DashboardActivity.class).putExtra("type", 9));
-                finish();
+                    overridePendingTransition(0,0);
+                    finish();
                 break;
             case 10:
                 startActivity(new Intent(ResultActivity.this, DashboardActivity.class).putExtra("type", 10));
@@ -300,15 +319,185 @@ public class ResultActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 123) {
             if (resultCode == Activity.RESULT_OK) {
-                Utils.renameAudioFile(mainOldFilePath, mainNewFileName);
-                recreate();
+                if (Utils.renameAudioFile(mainOldFilePath, mainNewFileName)) {
+                    File oldFile = new File(mainOldFilePath);
+                    String extension = Utils.getFileExtension(oldFile.getName());
+                    if (!extension.isEmpty()) {
+                        File parentDir = oldFile.getParentFile();
+                        File newFile = new File(parentDir, mainNewFileName + "." + extension);
+                        // Playlist
+                        if (!mainIsPresentInPlaylist.isEmpty()) {
+                            if (mainIsVideo) {
+                                preferences.removeItemFromPlaylist(mainIsPresentInPlaylist, mainOldFilePath);
+                                mainVideoInfoList = new ArrayList<>();
+                                mainVideoInfoList.add(new VideoInfo(mainId, mainNewFileName + "." + extension, Double.parseDouble(mainSize), newFile.getPath()));
+                                preferences.addItemsToPlaylist(mainIsPresentInPlaylist, mainVideoInfoList);
+                            } else {
+                                preferences.removeItemFromAudioPlaylist(mainIsPresentInPlaylist, mainOldFilePath);
+                                mainAudioInfoList = new ArrayList<>();
+                                mainAudioInfoList.add(new AudioInfo(mainId, newFile.getPath(), mainNewFileName + "." + extension, Double.parseDouble(mainSize)));
+                                preferences.addItemsToAudioPlaylist(mainIsPresentInPlaylist, mainAudioInfoList);
+                            }
+                        } else {
+                            if (mainIsVideo) {
+                                List<VideoPlaylistModel> videoPlaylistModels = preferences.getPlaylists();
+                                for (VideoPlaylistModel playlist : videoPlaylistModels) {
+                                    // Get the video list for the current playlist
+                                    if (getPlayListName(playlist,mainOldFilePath)) {
+                                        preferences.removeItemFromPlaylist(playlist.getPlaylistName(), mainOldFilePath);
+                                        mainVideoInfoList = new ArrayList<>();
+                                        mainVideoInfoList.add(new VideoInfo(mainId, mainNewFileName + "." + extension, Double.parseDouble(mainSize), newFile.getPath()));
+                                        preferences.addItemsToPlaylist(playlist.getPlaylistName(), mainVideoInfoList);
+                                    }
+                                }
+                            } else {
+                                List<AudioPlaylistModel> audioPlaylistModels = preferences.getAudioPlaylists();
+                                for (AudioPlaylistModel playlist : audioPlaylistModels) {
+                                    // Get the video list for the current playlist
+                                    if (getAudioPlayListName(playlist,mainOldFilePath)) {
+                                        preferences.removeItemFromAudioPlaylist(playlist.getPlaylistName(), mainOldFilePath);
+                                        mainAudioInfoList = new ArrayList<>();
+                                        mainAudioInfoList.add(new AudioInfo(mainId, newFile.getPath(), mainNewFileName + "." + extension, Double.parseDouble(mainSize)));
+                                        preferences.addItemsToAudioPlaylist(playlist.getPlaylistName(), mainAudioInfoList);
+                                    }
+                                }
+                            }
+                        }
+
+                        // Recents
+                        if (mainIsVideo) {
+                            List<VideoInfo> list = preferences.getVideoDataModelList();
+                            VideoInfo newDataModel = new VideoInfo(mainId, mainNewFileName + "." + extension, Double.parseDouble(mainSize), newFile.getPath());
+
+// Check if the list already contains a VideoInfo with the same path as newDataModel
+                            for (int i = 0; i < list.size(); i++) {
+                                if (list.get(i).getPath().equals(mainOldFilePath)) {
+                                    list.remove(i); // Remove the item with the same path
+                                    break; // Stop after removing the first occurrence
+                                }
+                            }
+                            list.add(newDataModel);
+                            preferences.putVideoDataModelList(list);
+                        } else {
+                            List<AudioInfo> list = preferences.getAudioDataModelList();
+                            AudioInfo newDataModel = new AudioInfo(mainId, newFile.getPath(), mainNewFileName + "." + extension, Double.parseDouble(mainSize));
+
+// Check if the list already contains a VideoInfo with the same path as newDataModel
+                            for (int i = 0; i < list.size(); i++) {
+                                if (list.get(i).getPath().equals(mainOldFilePath)) {
+                                    list.remove(i); // Remove the item with the same path
+                                    break; // Stop after removing the first occurrence
+                                }
+                            }
+                            list.add(newDataModel);
+                            preferences.putAudioDataModelList(list);
+                        }
+
+                        // Fav
+                        if (mainIsVideo) {
+                            List<VideoInfo> list = preferences.getFavVideoDataModelList();
+                            VideoInfo newDataModel = new VideoInfo(mainId, mainNewFileName + "." + extension, Double.parseDouble(mainSize), newFile.getPath());
+                            for (int i = 0; i < list.size(); i++) {
+                                if (list.get(i).getPath().equals(mainOldFilePath)) {
+                                    list.remove(i); // Remove the item with the same path
+                                    break; // Stop after removing the first occurrence
+                                }
+                            }
+                            list.add(newDataModel);
+                            preferences.putFavVideoDataModelList(list);
+                        } else {
+                            List<AudioInfo> list = preferences.getFavAudioDataModelList();
+                            AudioInfo newDataModel = new AudioInfo(mainId, newFile.getPath(), mainNewFileName + "." + extension, Double.parseDouble(mainSize));
+
+// Check if the list already contains a VideoInfo with the same path as newDataModel
+                            for (int i = 0; i < list.size(); i++) {
+                                if (list.get(i).getPath().equals(mainOldFilePath)) {
+                                    list.remove(i); // Remove the item with the same path
+                                    break; // Stop after removing the first occurrence
+                                }
+                            }
+                            list.add(newDataModel);
+                            preferences.putFavAudioDataModelList(list);
+                        }
+                    }
+                    recreate();
+                }
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 Log.d(TAG, "onActivityResult:  RESULT_CANCELED");
             }
         } else if (requestCode == 124) {
             if (resultCode == Activity.RESULT_OK) {
-                Utils.deleteFile(mainOldFilePath);
-                //TODO need to update ui
+                if (Utils.deleteFile(mainOldFilePath)) {
+                    //PlayList
+                    if (!mainIsPresentInPlaylist.isEmpty()) {
+                        if (mainIsVideo) {
+                            preferences.removeItemFromPlaylist(mainIsPresentInPlaylist, mainOldFilePath);
+                        } else {
+                            preferences.removeItemFromAudioPlaylist(mainIsPresentInPlaylist, mainOldFilePath);
+                        }
+                    } else {
+                        if (mainIsVideo) {
+                            List<VideoPlaylistModel> videoPlaylistModels = preferences.getPlaylists();
+                            for (VideoPlaylistModel playlist : videoPlaylistModels) {
+                                // Get the video list for the current playlist
+                                if (getPlayListName(playlist, mainOldFilePath)) {
+                                    preferences.removeItemFromPlaylist(playlist.getPlaylistName(), mainOldFilePath);
+                                }
+                            }
+                        } else {
+                            List<AudioPlaylistModel> audioPlaylistModels = preferences.getAudioPlaylists();
+                            for (AudioPlaylistModel playlist : audioPlaylistModels) {
+                                // Get the video list for the current playlist
+                                if (getAudioPlayListName(playlist, mainOldFilePath)) {
+                                    preferences.removeItemFromAudioPlaylist(playlist.getPlaylistName(), mainOldFilePath);
+                                }
+                            }
+                        }
+                    }
+
+                    //Recent
+                    if (mainIsVideo) {
+                        List<VideoInfo> list = preferences.getVideoDataModelList();
+                        for (int i = 0; i < list.size(); i++) {
+                            if (list.get(i).getPath().equals(mainOldFilePath)) {
+                                list.remove(i); // Remove the item with the same path
+                                break; // Stop after removing the first occurrence
+                            }
+                        }
+                        preferences.putVideoDataModelList(list);
+                    } else {
+                        List<AudioInfo> list = preferences.getAudioDataModelList();
+                        for (int i = 0; i < list.size(); i++) {
+                            if (list.get(i).getPath().equals(mainOldFilePath)) {
+                                list.remove(i); // Remove the item with the same path
+                                break; // Stop after removing the first occurrence
+                            }
+                        }
+                        preferences.putAudioDataModelList(list);
+                    }
+
+                    // Fav
+                    if (mainIsVideo) {
+                        List<VideoInfo> list = preferences.getFavVideoDataModelList();
+                        for (int i = 0; i < list.size(); i++) {
+                            if (list.get(i).getPath().equals(mainOldFilePath)) {
+                                list.remove(i); // Remove the item with the same path
+                                break; // Stop after removing the first occurrence
+                            }
+                        }
+                        preferences.putFavVideoDataModelList(list);
+                    } else {
+                        List<AudioInfo> list = preferences.getFavAudioDataModelList();
+                        for (int i = 0; i < list.size(); i++) {
+                            if (list.get(i).getPath().equals(mainOldFilePath)) {
+                                list.remove(i); // Remove the item with the same path
+                                break; // Stop after removing the first occurrence
+                            }
+                        }
+                        preferences.putFavAudioDataModelList(list);
+                    }
+                    recreate();
+                }
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 Log.d(TAG, "onActivityResult:  RESULT_CANCELED");
             }

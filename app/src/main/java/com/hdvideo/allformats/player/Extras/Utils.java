@@ -4,8 +4,12 @@ package com.hdvideo.allformats.player.Extras;
 import static android.os.Build.VERSION.SDK_INT;
 
 import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainAudioInfoList;
+import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainId;
+import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainIsPresentInPlaylist;
+import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainIsVideo;
 import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainNewFileName;
 import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainOldFilePath;
+import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainSize;
 import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainVideoInfoList;
 import static com.hdvideo.allformats.player.Extras.Constants.SELECTED_MUSIC_POSITION;
 import static com.hdvideo.allformats.player.Extras.Constants.downloadWhatsAppDir;
@@ -38,7 +42,6 @@ import android.graphics.Shader;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.provider.Settings;
@@ -55,11 +58,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
@@ -75,7 +74,9 @@ import com.google.android.play.core.review.ReviewManager;
 import com.hdvideo.allformats.player.Activity.MusicPlayerActivity;
 import com.hdvideo.allformats.player.Activity.ResultActivity;
 import com.hdvideo.allformats.player.Models.AudioInfo;
+import com.hdvideo.allformats.player.Models.AudioPlaylistModel;
 import com.hdvideo.allformats.player.Models.VideoInfo;
+import com.hdvideo.allformats.player.Models.VideoPlaylistModel;
 import com.hdvideo.allformats.player.R;
 import com.hdvideo.allformats.player.Service.MusicPlayerService;
 
@@ -832,7 +833,7 @@ public class Utils {
 //    }
 
     // Helper function to extract file extension
-    private static String getFileExtension(String fileName) {
+    public static String getFileExtension(String fileName) {
         int lastDotIndex = fileName.lastIndexOf('.');
         if (lastDotIndex > 0) {
             return fileName.substring(lastDotIndex + 1);
@@ -1151,11 +1152,7 @@ public class Utils {
                     String audioName = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
                     long audioSizeInBytes = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.SIZE));
 
-                    // Convert bytes to megabytes
-                    double audioSizeInMB = (audioSizeInBytes / (1024.0 * 1024.0));
-                    double audioSizeInKB = (audioSizeInBytes / 1024.0);
-
-                    AudioInfo audioInfo = new AudioInfo(audioId, audioPath, audioName, roundToTwoDecimals(audioSizeInKB));
+                    AudioInfo audioInfo = new AudioInfo(audioId, audioPath, audioName, audioSizeInBytes);
                     audioFiles.add(audioInfo);
                 } while (cursor.moveToNext());
             }
@@ -1168,6 +1165,17 @@ public class Utils {
         }
 
         return audioFiles;
+    }
+
+    public static String formatFileSize(double sizeInBytes) {
+        if (sizeInBytes <= 0) {
+            return "0 B";
+        }
+
+        final String[] units = new String[]{"B", "KB", "MB", "GB", "TB"};
+        int digitGroups = (int) (Math.log10(sizeInBytes) / Math.log10(1024));
+
+        return String.format("%.1f %s", sizeInBytes / Math.pow(1024, digitGroups), units[digitGroups]);
     }
 
     public static Map<String, Integer> getAudioAlbumsWithCount(Context context) {
@@ -1238,6 +1246,7 @@ public class Utils {
     public static void openMenuDialog(Activity activity, long id, String name, String path, String size, boolean isVideo, ImageView more, String isPresentInPlaylist) {
 
         myActivity = activity;
+        SharePreferences preferences = new SharePreferences(activity);
 
         PopupMenuCustomLayout popupMenu = new PopupMenuCustomLayout(activity, R.layout.menu_dialog,
                 new PopupMenuCustomLayout.PopupMenuCustomOnClickListener() {
@@ -1262,7 +1271,6 @@ public class Utils {
                                 break;
                             case R.id.remove_from_playlist:
                                 // log statement: "Item A was clicked!"
-                                SharePreferences preferences = new SharePreferences(activity);
                                 if (isVideo) {
                                     preferences.removeItemFromPlaylist(isPresentInPlaylist, path);
                                     activity.recreate();
@@ -1274,7 +1282,7 @@ public class Utils {
                             case R.id.rename:
                                 // log statement: "Item A was clicked!"
                                 if (isStoragePermissionGranted(activity)) {
-                                    renameDialog(activity, id, path, isVideo);
+                                    renameDialog(activity, id, path, isVideo, name, size, isPresentInPlaylist);
                                 } else {
                                     requestStoragePermission(activity);
                                 }
@@ -1300,14 +1308,87 @@ public class Utils {
                                         try {
                                             mainOldFilePath = path;
                                             mainNewFileName = "";
+                                            mainIsVideo = isVideo;
+                                            mainIsPresentInPlaylist = isPresentInPlaylist;
+                                            mainSize = size;
+                                            mainId = id;
                                             activity.startIntentSenderForResult(intent.getIntentSender(), 124, null, 0, 0, 0);
                                         } catch (IntentSender.SendIntentException e) {
                                             throw new RuntimeException(e);
                                         }
                                     } else {
-                                        deleteFile(path);
+                                        if (deleteFile(path)) {
+                                            //PlayList
+                                            if (!isPresentInPlaylist.isEmpty()) {
+                                                if (isVideo) {
+                                                    preferences.removeItemFromPlaylist(isPresentInPlaylist, path);
+                                                } else {
+                                                    preferences.removeItemFromAudioPlaylist(isPresentInPlaylist, path);
+                                                }
+                                            } else {
+                                                if (isVideo) {
+                                                    List<VideoPlaylistModel> videoPlaylistModels = preferences.getPlaylists();
+                                                    for (VideoPlaylistModel playlist : videoPlaylistModels) {
+                                                        // Get the video list for the current playlist
+                                                        if (getPlayListName(playlist, path)) {
+                                                            preferences.removeItemFromPlaylist(playlist.getPlaylistName(), path);
+                                                        }
+                                                    }
+                                                } else {
+                                                    List<AudioPlaylistModel> audioPlaylistModels = preferences.getAudioPlaylists();
+                                                    for (AudioPlaylistModel playlist : audioPlaylistModels) {
+                                                        // Get the video list for the current playlist
+                                                        if (getAudioPlayListName(playlist, path)) {
+                                                            preferences.removeItemFromAudioPlaylist(playlist.getPlaylistName(), path);
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            //Recent
+                                            if (isVideo) {
+                                                List<VideoInfo> list = preferences.getVideoDataModelList();
+                                                for (int i = 0; i < list.size(); i++) {
+                                                    if (list.get(i).getPath().equals(path)) {
+                                                        list.remove(i); // Remove the item with the same path
+                                                        break; // Stop after removing the first occurrence
+                                                    }
+                                                }
+                                                preferences.putVideoDataModelList(list);
+                                            } else {
+                                                List<AudioInfo> list = preferences.getAudioDataModelList();
+                                                for (int i = 0; i < list.size(); i++) {
+                                                    if (list.get(i).getPath().equals(path)) {
+                                                        list.remove(i); // Remove the item with the same path
+                                                        break; // Stop after removing the first occurrence
+                                                    }
+                                                }
+                                                preferences.putAudioDataModelList(list);
+                                            }
+
+                                            // Fav
+                                            if (isVideo) {
+                                                List<VideoInfo> list = preferences.getFavVideoDataModelList();
+                                                for (int i = 0; i < list.size(); i++) {
+                                                    if (list.get(i).getPath().equals(path)) {
+                                                        list.remove(i); // Remove the item with the same path
+                                                        break; // Stop after removing the first occurrence
+                                                    }
+                                                }
+                                                preferences.putFavVideoDataModelList(list);
+                                            } else {
+                                                List<AudioInfo> list = preferences.getFavAudioDataModelList();
+                                                for (int i = 0; i < list.size(); i++) {
+                                                    if (list.get(i).getPath().equals(path)) {
+                                                        list.remove(i); // Remove the item with the same path
+                                                        break; // Stop after removing the first occurrence
+                                                    }
+                                                }
+                                                preferences.putFavAudioDataModelList(list);
+                                            }
+                                            activity.recreate();
+                                        }
                                     }
-                                    Log.e(TAG, "deleteFile: " + deleteFile(path));
                                 } else {
                                     requestStoragePermission(activity);
                                 }
@@ -1391,7 +1472,7 @@ public class Utils {
     }
 
 
-    private static void renameDialog(Activity activity, long id, String path, boolean isVideo) {
+    private static void renameDialog(Activity activity, long id, String path, boolean isVideo, String name, String size, String isPresentInPlaylist) {
         Dialog dialog = new Dialog(activity, R.style.SheetDialog);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setCancelable(true);
@@ -1407,7 +1488,10 @@ public class Utils {
 
         textView.setText(activity.getString(R.string.enter_new_name));
         nameEd.setHint(activity.getString(R.string.enter_new_name));
+//        nameEd.setText(name);
         createBt.setText(activity.getString(R.string.rename));
+
+        SharePreferences preferences = new SharePreferences(activity);
 
         createBt.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1433,12 +1517,118 @@ public class Utils {
                         try {
                             mainOldFilePath = path;
                             mainNewFileName = nameEd.getText().toString().trim();
+                            mainIsVideo = isVideo;
+                            mainIsPresentInPlaylist = isPresentInPlaylist;
+                            mainSize = size;
+                            mainId = id;
                             activity.startIntentSenderForResult(intent.getIntentSender(), 123, null, 0, 0, 0);
                         } catch (IntentSender.SendIntentException e) {
                             throw new RuntimeException(e);
                         }
                     } else {
-                        Utils.renameAudioFile(path, nameEd.getText().toString().trim());
+                        if (Utils.renameAudioFile(path, nameEd.getText().toString().trim())) {
+                            File oldFile = new File(path);
+                            String extension = getFileExtension(oldFile.getName());
+                            if (!extension.isEmpty()) {
+                                File parentDir = oldFile.getParentFile();
+                                File newFile = new File(parentDir, nameEd.getText().toString().trim() + "." + extension);
+                                // Playlist
+                                if (!isPresentInPlaylist.isEmpty()) {
+                                    if (isVideo) {
+                                        preferences.removeItemFromPlaylist(isPresentInPlaylist, path);
+                                        mainVideoInfoList = new ArrayList<>();
+                                        mainVideoInfoList.add(new VideoInfo(id, nameEd.getText().toString().trim() + "." + extension, Double.parseDouble(size), newFile.getPath()));
+                                        preferences.addItemsToPlaylist(isPresentInPlaylist, mainVideoInfoList);
+                                    } else {
+                                        preferences.removeItemFromAudioPlaylist(isPresentInPlaylist, path);
+                                        mainAudioInfoList = new ArrayList<>();
+                                        mainAudioInfoList.add(new AudioInfo(id, newFile.getPath(), nameEd.getText().toString().trim() + "." + extension, Double.parseDouble(size)));
+                                        preferences.addItemsToAudioPlaylist(isPresentInPlaylist, mainAudioInfoList);
+                                    }
+                                } else {
+                                    if (isVideo) {
+                                        List<VideoPlaylistModel> videoPlaylistModels = preferences.getPlaylists();
+                                        for (VideoPlaylistModel playlist : videoPlaylistModels) {
+                                            // Get the video list for the current playlist
+                                            if (getPlayListName(playlist, path)) {
+                                                preferences.removeItemFromPlaylist(playlist.getPlaylistName(), path);
+                                                mainVideoInfoList = new ArrayList<>();
+                                                mainVideoInfoList.add(new VideoInfo(id, nameEd.getText().toString().trim() + "." + extension, Double.parseDouble(size), newFile.getPath()));
+                                                preferences.addItemsToPlaylist(playlist.getPlaylistName(), mainVideoInfoList);
+                                            }
+                                        }
+                                    } else {
+                                        List<AudioPlaylistModel> audioPlaylistModels = preferences.getAudioPlaylists();
+                                        for (AudioPlaylistModel playlist : audioPlaylistModels) {
+                                            // Get the video list for the current playlist
+                                            if (getAudioPlayListName(playlist, path)) {
+                                                preferences.removeItemFromAudioPlaylist(playlist.getPlaylistName(), path);
+                                                mainAudioInfoList = new ArrayList<>();
+                                                mainAudioInfoList.add(new AudioInfo(id, newFile.getPath(), nameEd.getText().toString().trim() + "." + extension, Double.parseDouble(size)));
+                                                preferences.addItemsToAudioPlaylist(playlist.getPlaylistName(), mainAudioInfoList);
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // Recents
+                                if (isVideo) {
+                                    List<VideoInfo> list = preferences.getVideoDataModelList();
+                                    VideoInfo newDataModel = new VideoInfo(id, nameEd.getText().toString().trim() + "." + extension, Double.parseDouble(size), newFile.getPath());
+
+// Check if the list already contains a VideoInfo with the same path as newDataModel
+                                    for (int i = 0; i < list.size(); i++) {
+                                        if (list.get(i).getPath().equals(path)) {
+                                            list.remove(i); // Remove the item with the same path
+                                            break; // Stop after removing the first occurrence
+                                        }
+                                    }
+                                    list.add(newDataModel);
+                                    preferences.putVideoDataModelList(list);
+                                } else {
+                                    List<AudioInfo> list = preferences.getAudioDataModelList();
+                                    AudioInfo newDataModel = new AudioInfo(id, newFile.getPath(), nameEd.getText().toString().trim() + "." + extension, Double.parseDouble(size));
+
+// Check if the list already contains a VideoInfo with the same path as newDataModel
+                                    for (int i = 0; i < list.size(); i++) {
+                                        if (list.get(i).getPath().equals(path)) {
+                                            list.remove(i); // Remove the item with the same path
+                                            break; // Stop after removing the first occurrence
+                                        }
+                                    }
+                                    list.add(newDataModel);
+                                    preferences.putAudioDataModelList(list);
+                                }
+
+                                // Fav
+                                if (isVideo) {
+                                    List<VideoInfo> list = preferences.getFavVideoDataModelList();
+                                    VideoInfo newDataModel = new VideoInfo(id, nameEd.getText().toString().trim() + "." + extension, Double.parseDouble(size), newFile.getPath());
+                                    for (int i = 0; i < list.size(); i++) {
+                                        if (list.get(i).getPath().equals(path)) {
+                                            list.remove(i); // Remove the item with the same path
+                                            break; // Stop after removing the first occurrence
+                                        }
+                                    }
+                                    list.add(newDataModel);
+                                    preferences.putFavVideoDataModelList(list);
+                                } else {
+                                    List<AudioInfo> list = preferences.getFavAudioDataModelList();
+                                    AudioInfo newDataModel = new AudioInfo(id, newFile.getPath(), nameEd.getText().toString().trim() + "." + extension, Double.parseDouble(size));
+
+// Check if the list already contains a VideoInfo with the same path as newDataModel
+                                    for (int i = 0; i < list.size(); i++) {
+                                        if (list.get(i).getPath().equals(path)) {
+                                            list.remove(i); // Remove the item with the same path
+                                            break; // Stop after removing the first occurrence
+                                        }
+                                    }
+                                    list.add(newDataModel);
+                                    preferences.putFavAudioDataModelList(list);
+                                }
+                            }
+                            activity.recreate();
+                        }
                     }
                     dialog.dismiss();
                 }
@@ -1453,6 +1643,26 @@ public class Utils {
         });
 
         dialog.show();
+    }
+
+    public static boolean getAudioPlayListName(AudioPlaylistModel playlist, String path) {
+        List<AudioInfo> audioList = playlist.getAudioList();
+        for (int i = 0; i < audioList.size(); i++) {
+            if (audioList.get(i).getPath().equals(path)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean getPlayListName(VideoPlaylistModel playlist, String path) {
+        List<VideoInfo> videoList = playlist.getVideoList();
+        for (int i = 0; i < videoList.size(); i++) {
+            if (videoList.get(i).getPath().equals(path)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static Map<String, Integer> getArtistsWithSongCount(Context context) {
@@ -1548,9 +1758,8 @@ public class Utils {
                     long videoSizeInBytes = cursor.getLong(cursor.getColumnIndex(MediaStore.Video.Media.SIZE));
 
                     // Convert bytes to megabytes
-                    double videoSizeInMB = (videoSizeInBytes / (1024.0 * 1024.0));
 
-                    VideoInfo videoInfo = new VideoInfo(videoId, videoName, roundToTwoDecimals(videoSizeInMB), videoPath);
+                    VideoInfo videoInfo = new VideoInfo(videoId, videoName, videoSizeInBytes, videoPath);
                     videoInfoList.add(videoInfo);
                 }
             }
