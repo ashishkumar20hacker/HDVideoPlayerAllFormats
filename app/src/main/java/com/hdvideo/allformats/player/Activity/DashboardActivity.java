@@ -60,6 +60,7 @@ public class DashboardActivity extends AppCompatActivity {
     public static String mainIsPresentInPlaylist = "";
     public static long mainId;
     public static String mainSize = "";
+    public static int mainPos = 0;
     int type = 111;
 
     @Override

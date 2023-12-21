@@ -16,7 +16,9 @@ import androidx.lifecycle.ProcessLifecycleOwner;
 import com.adsmodule.api.adsModule.utils.AdUtils;
 import com.adsmodule.api.adsModule.utils.AppInterfaces;
 import com.adsmodule.api.adsModule.utils.Constants;
+import com.hdvideo.allformats.player.Activity.MPlayerActivity;
 import com.hdvideo.allformats.player.Activity.SplashActivity;
+import com.hdvideo.allformats.player.Activity.VideoPlayerActivity;
 
 public class LifeCycleOwner implements DefaultLifecycleObserver, Application.ActivityLifecycleCallbacks {
 
@@ -53,7 +55,7 @@ public class LifeCycleOwner implements DefaultLifecycleObserver, Application.Act
     @Override
     public void onStart(@NonNull LifecycleOwner owner) {
         if (Constants.adsResponseModel.getPackage_name() != null && Constants.adsResponseModel.isShow_ads()) {
-            if (!isAdShowing && LifeCycleOwner.activity != null && (!LifeCycleOwner.activity.getClass().getName().equals(SplashActivity.class.getName()))) {
+            if (!isAdShowing && LifeCycleOwner.activity != null && (!LifeCycleOwner.activity.getClass().getName().equals(SplashActivity.class.getName())) && (!LifeCycleOwner.activity.getClass().getName().equals(MPlayerActivity.class.getName())) && (!LifeCycleOwner.activity.getClass().getName().equals(VideoPlayerActivity.class.getName()))) {
                 isAdShowing = true;
                 AdUtils.showAppOpenAd(activity, new AppInterfaces.AppOpenAdCallback() {
                     @Override

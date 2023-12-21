@@ -28,6 +28,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.adsmodule.api.adsModule.utils.AdUtils;
 import com.hdvideo.allformats.player.Adapter.StatusAdapter;
 import com.hdvideo.allformats.player.Adapter.VideoAdapter;
 import com.hdvideo.allformats.player.Extras.AppInterfaces;
@@ -94,6 +95,8 @@ public class StatusFragment extends Fragment {
     SharePreferences preferences;
     int REQUEST_ACTION_OPEN_DOCUMENT_TREE = 101;
 
+    int tab = 0;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -106,14 +109,18 @@ public class StatusFragment extends Fragment {
         binding.videosTab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switchUi(0);
+                AdUtils.showInterstitialAd(requireActivity(), isLoaded -> {
+                    switchUi(0);
+                });
             }
         });
 
         binding.savedTab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                AdUtils.showInterstitialAd(requireActivity(), isLoaded -> {
                 switchUi(1);
+                });
             }
         });
 
@@ -243,13 +250,18 @@ public class StatusFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (!preferences.getString(Constants.IS_WHATSAPP_GRANTED).isEmpty()) {
-            populateGrid();
+        if (tab == 0) {
+            if (!preferences.getString(Constants.IS_WHATSAPP_GRANTED).isEmpty()) {
+                populateGrid();
+            }
+        } else {
+            switchUi(1);
         }
     }
 
 
     private void switchUi(int i) {
+        tab = i;
         if (i == 0) {
             binding.savedTab.setBackgroundResource(R.drawable.tab_unselected);
             binding.videosTab.setBackgroundResource(R.drawable.tab_selected);

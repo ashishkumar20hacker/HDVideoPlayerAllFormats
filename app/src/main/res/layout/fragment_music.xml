@@ -10,7 +10,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="?actionBarSize"
-        android:layout_marginTop="@dimen/_20sdp">
+        android:layout_marginTop="@dimen/_25sdp">
 
         <TextView
             android:layout_width="match_parent"
@@ -161,6 +161,7 @@
         android:layout_height="match_parent"
         android:layout_margin="@dimen/_8sdp"
         android:paddingBottom="@dimen/_85sdp"
+        android:clipToPadding="false"
         tools:listitem="@layout/item_music" />
 
     <LinearLayout
@@ -169,6 +170,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:paddingBottom="@dimen/_85sdp"
+        android:clipToPadding="false"
         android:visibility="gone">
 
         <LinearLayout
@@ -356,6 +358,7 @@
         android:layout_margin="@dimen/_8sdp"
         android:visibility="gone"
         android:paddingBottom="@dimen/_85sdp"
+        android:clipToPadding="false"
         tools:listitem="@layout/item_album" />
 
     <androidx.recyclerview.widget.RecyclerView
@@ -365,6 +368,7 @@
         android:layout_margin="@dimen/_8sdp"
         android:visibility="gone"
         android:paddingBottom="@dimen/_85sdp"
+        android:clipToPadding="false"
         tools:listitem="@layout/item_artist" />
 
 </LinearLayout>

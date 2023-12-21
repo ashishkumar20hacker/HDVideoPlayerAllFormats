@@ -10,7 +10,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="?actionBarSize"
-        android:layout_marginTop="@dimen/_20sdp">
+        android:layout_marginTop="@dimen/_25sdp">
 
         <TextView
             android:layout_width="match_parent"
@@ -67,10 +67,10 @@
             android:fontFamily="@font/poppins"
             android:gravity="center_vertical"
             android:hint="@string/search_here"
-            android:singleLine="true"
-            android:maxLines="1"
             android:imeOptions="actionSearch"
+            android:maxLines="1"
             android:paddingHorizontal="@dimen/_10sdp"
+            android:singleLine="true"
             android:textColor="@color/white"
             android:textColorHint="#BFFFFFFF"
             android:textSize="16sp" />
@@ -80,10 +80,10 @@
     <com.adsmodule.api.adsModule.views.NativeView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:adType="SMALL"
         android:layout_marginHorizontal="@dimen/_8sdp"
         android:layout_marginBottom="@dimen/_8sdp"
-        app:borderColor="@color/white"/>
+        app:adType="SMALL"
+        app:borderColor="@color/white" />
 
     <HorizontalScrollView
         android:layout_width="match_parent"
@@ -146,6 +146,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="@dimen/_8sdp"
+        android:clipToPadding="false"
         android:paddingBottom="@dimen/_85sdp"
         tools:listitem="@layout/item_video" />
 
@@ -153,6 +154,7 @@
         android:id="@+id/playlist_ll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clipToPadding="false"
         android:orientation="vertical"
         android:paddingBottom="@dimen/_85sdp"
         android:visibility="gone">
@@ -340,6 +342,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="@dimen/_8sdp"
+        android:clipToPadding="false"
         android:paddingBottom="@dimen/_85sdp"
         android:visibility="gone"
         tools:listitem="@layout/item_folders" />

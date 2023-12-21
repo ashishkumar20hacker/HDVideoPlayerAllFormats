@@ -9,6 +9,7 @@ import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainIsPre
 import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainIsVideo;
 import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainNewFileName;
 import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainOldFilePath;
+import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainPos;
 import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainSize;
 import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainVideoInfoList;
 import static com.hdvideo.allformats.player.Extras.Constants.SELECTED_MUSIC_POSITION;
@@ -73,6 +74,7 @@ import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.play.core.review.ReviewManager;
 import com.hdvideo.allformats.player.Activity.MusicPlayerActivity;
 import com.hdvideo.allformats.player.Activity.ResultActivity;
+import com.hdvideo.allformats.player.Activity.VideoPlayerActivity;
 import com.hdvideo.allformats.player.Models.AudioInfo;
 import com.hdvideo.allformats.player.Models.AudioPlaylistModel;
 import com.hdvideo.allformats.player.Models.VideoInfo;
@@ -1255,6 +1257,11 @@ public class Utils {
                         switch (itemId) {
                             case R.id.play_menu:
                                 // log statement: "Item A was clicked!"
+                                if (isVideo){
+                                    activity.startActivity(new Intent(activity, VideoPlayerActivity.class).putExtra("pos",mainPos));
+                                } else {
+                                    activity.startActivity(new Intent(activity, MusicPlayerActivity.class).putExtra("currentMusicPosition",mainPos).putExtra("fromNotification",false).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                                }
                                 break;
                             case R.id.add_to_playlist:
                                 // log statement: "Item A was clicked!"

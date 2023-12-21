@@ -1,5 +1,6 @@
 package com.hdvideo.allformats.player.Adapter;
 
+import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainPos;
 import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainVideoPlayerInfoList;
 import static com.hdvideo.allformats.player.Extras.Utils.formatFileSize;
 
@@ -104,6 +105,8 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
         holder.binding.more.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mainPos = position;
+                mainVideoPlayerInfoList = videosInFolder;
                 moreListener.onMoreClick(videosInFolder.get(position).getId(), videosInFolder.get(position).getName(),videosInFolder.get(position).getPath(), String.valueOf(videosInFolder.get(position).getSizeInMB()), holder.binding.more);
             }
         });

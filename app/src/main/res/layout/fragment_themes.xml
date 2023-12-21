@@ -11,7 +11,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="?actionBarSize"
-        android:layout_marginTop="@dimen/_20sdp">
+        android:layout_marginTop="@dimen/_25sdp">
 
         <ImageView
             android:id="@+id/apply_bt"

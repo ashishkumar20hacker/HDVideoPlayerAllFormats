@@ -3,6 +3,7 @@ package com.hdvideo.allformats.player.Fragments;
 import static com.hdvideo.allformats.player.Extras.Utils.openMenuDialog;
 
 import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainAudioInfoList;
+
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
@@ -22,6 +23,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.adsmodule.api.adsModule.utils.AdUtils;
 import com.google.android.material.card.MaterialCardView;
 import com.hdvideo.allformats.player.Activity.ResultActivity;
 import com.hdvideo.allformats.player.Adapter.ArtistsAdapter;
@@ -49,6 +51,7 @@ public class MusicFragment extends Fragment {
 
 
     int type = 10;
+
     public MusicFragment(int type) {
         this.type = type;
         // Required empty public constructor
@@ -59,6 +62,10 @@ public class MusicFragment extends Fragment {
     SharePreferences preferences;
     int sort_by = 0;
     List<AudioInfo> mainList;
+
+    int sortType = 0;
+    int mainSort = 0;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -70,7 +77,7 @@ public class MusicFragment extends Fragment {
         binding.artistRv.setLayoutManager(new GridLayoutManager(requireContext(), 3));
         binding.playlistRv.setLayoutManager(new GridLayoutManager(requireContext(), 2));
 
-        if (type == 1){
+        if (type == 1) {
             switchUi(2);
         } else if (type == 2) {
             switchUi(3);
@@ -83,35 +90,45 @@ public class MusicFragment extends Fragment {
         binding.allSongsTab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switchUi(0);
+                AdUtils.showInterstitialAd(requireActivity(), isLoaded -> {
+                    switchUi(0);
+                });
             }
         });
 
         binding.allSongsBt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switchUi(0);
+                AdUtils.showInterstitialAd(requireActivity(), isLoaded -> {
+                    switchUi(0);
+                });
             }
         });
 
         binding.playlistTab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switchUi(1);
+                AdUtils.showInterstitialAd(requireActivity(), isLoaded -> {
+                    switchUi(1);
+                });
             }
         });
 
         binding.albumTab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switchUi(2);
+                AdUtils.showInterstitialAd(requireActivity(), isLoaded -> {
+                    switchUi(2);
+                });
             }
         });
 
         binding.artistTab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switchUi(3);
+                AdUtils.showInterstitialAd(requireActivity(), isLoaded -> {
+                    switchUi(3);
+                });
             }
         });
 
@@ -133,14 +150,18 @@ public class MusicFragment extends Fragment {
         binding.recentsBt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(requireActivity(), ResultActivity.class).putExtra("type",7).putExtra("name",getString(R.string.recently_played)));
+                AdUtils.showInterstitialAd(requireActivity(), isLoaded -> {
+                    startActivity(new Intent(requireActivity(), ResultActivity.class).putExtra("type", 7).putExtra("name", getString(R.string.recently_played)));
+                });
             }
         });
 
         binding.favoritesBt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(requireActivity(), ResultActivity.class).putExtra("type",8).putExtra("name",getString(R.string.favorites)));
+                AdUtils.showInterstitialAd(requireActivity(), isLoaded -> {
+                    startActivity(new Intent(requireActivity(), ResultActivity.class).putExtra("type", 8).putExtra("name", getString(R.string.favorites)));
+                });
             }
         });
 
@@ -153,7 +174,7 @@ public class MusicFragment extends Fragment {
                         binding.searchEd.requestFocus();
                     } else {
                         mainAudioInfoList = mainList;
-                        startActivity(new Intent(requireActivity(), ResultActivity.class).putExtra("type",10).putExtra("name",binding.searchEd.getText().toString().toLowerCase().trim()));
+                        startActivity(new Intent(requireActivity(), ResultActivity.class).putExtra("type", 10).putExtra("name", binding.searchEd.getText().toString().toLowerCase().trim()));
                         binding.searchEd.setText("");
                     }
                     return true;
@@ -191,7 +212,7 @@ public class MusicFragment extends Fragment {
 
             @Override
             public void onItemClick(String playlistName) {
-                startActivity(new Intent(requireActivity(), ResultActivity.class).putExtra("type",6).putExtra("name", playlistName));
+                startActivity(new Intent(requireActivity(), ResultActivity.class).putExtra("type", 6).putExtra("name", playlistName));
             }
         });
         binding.playlistRv.setAdapter(adapter);
@@ -222,7 +243,7 @@ public class MusicFragment extends Fragment {
                 MusicAdapter adapter = new MusicAdapter(requireActivity(), allAudioList, new AppInterfaces.OnMoreListener() {
                     @Override
                     public void onMoreClick(long id, String name, String path, String size, ImageView more) {
-                        openMenuDialog(requireActivity(),id,name, path, size, false, more, "");
+                        openMenuDialog(requireActivity(), id, name, path, size, false, more, "");
                     }
                 });
                 binding.allSongsRv.setAdapter(adapter);
@@ -247,6 +268,35 @@ public class MusicFragment extends Fragment {
         TextView applyBt = lay.findViewById(R.id.apply_bt);
 
         dialog.setContentView(lay);
+        if (mainSort == 0) {
+            nameRb.setStrokeColor(Color.parseColor("#264E73"));
+            dateRb.setStrokeColor(Color.parseColor("#264E73"));
+            sizeRb.setStrokeColor(Color.parseColor("#264E73"));
+            nameRbIv.setImageResource(R.drawable.unselected_rb);
+            dateRbIv.setImageResource(R.drawable.unselected_rb);
+            sizeRbIv.setImageResource(R.drawable.unselected_rb);
+        } else if (mainSort == 1) {
+            dateRb.setStrokeColor(Color.parseColor("#264E73"));
+            sizeRb.setStrokeColor(Color.parseColor("#264E73"));
+            dateRbIv.setImageResource(R.drawable.unselected_rb);
+            sizeRbIv.setImageResource(R.drawable.unselected_rb);
+            nameRb.setStrokeColor(Utils.setColorFromAttribute(requireActivity(), R.attr.light_color, R.color.light_blue));
+            nameRbIv.setImageResource(R.drawable.selected_rb);
+        } else if (mainSort == 2) {
+            nameRb.setStrokeColor(Color.parseColor("#264E73"));
+            sizeRb.setStrokeColor(Color.parseColor("#264E73"));
+            nameRbIv.setImageResource(R.drawable.unselected_rb);
+            sizeRbIv.setImageResource(R.drawable.unselected_rb);
+            dateRb.setStrokeColor(Utils.setColorFromAttribute(requireActivity(), R.attr.light_color, R.color.light_blue));
+            dateRbIv.setImageResource(R.drawable.selected_rb);
+        } else if (mainSort == 3){
+            dateRb.setStrokeColor(Color.parseColor("#264E73"));
+            nameRb.setStrokeColor(Color.parseColor("#264E73"));
+            dateRbIv.setImageResource(R.drawable.unselected_rb);
+            nameRbIv.setImageResource(R.drawable.unselected_rb);
+            sizeRb.setStrokeColor(Utils.setColorFromAttribute(requireActivity(), R.attr.light_color, R.color.light_blue));
+            sizeRbIv.setImageResource(R.drawable.selected_rb);
+        }
 
         closeBt.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -265,6 +315,7 @@ public class MusicFragment extends Fragment {
         nameRb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                sortType = 1;
                 dateRb.setStrokeColor(Color.parseColor("#264E73"));
                 sizeRb.setStrokeColor(Color.parseColor("#264E73"));
                 dateRbIv.setImageResource(R.drawable.unselected_rb);
@@ -283,6 +334,7 @@ public class MusicFragment extends Fragment {
         dateRb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                sortType = 2;
                 nameRb.setStrokeColor(Color.parseColor("#264E73"));
                 sizeRb.setStrokeColor(Color.parseColor("#264E73"));
                 nameRbIv.setImageResource(R.drawable.unselected_rb);
@@ -305,6 +357,7 @@ public class MusicFragment extends Fragment {
         sizeRb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                sortType = 3;
                 dateRb.setStrokeColor(Color.parseColor("#264E73"));
                 nameRb.setStrokeColor(Color.parseColor("#264E73"));
                 dateRbIv.setImageResource(R.drawable.unselected_rb);
@@ -324,10 +377,11 @@ public class MusicFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
+                mainSort = sortType;
                 MusicAdapter adapter = new MusicAdapter(requireActivity(), mainList, new AppInterfaces.OnMoreListener() {
                     @Override
                     public void onMoreClick(long id, String name, String path, String size, ImageView more) {
-                        openMenuDialog(requireActivity(),id,name, path, size, false, more, "");
+                        openMenuDialog(requireActivity(), id, name, path, size, false, more, "");
                     }
                 });
                 binding.allSongsRv.setAdapter(adapter);

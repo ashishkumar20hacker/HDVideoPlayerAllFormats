@@ -3,6 +3,14 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        release {
+            storeFile file('C:\\Users\\Admin\\AndroidStudioProjects\\HDVideoPlayerAllFormats\\hdvideo.jks')
+            storePassword '123456'
+            keyAlias 'key0'
+            keyPassword '123456'
+        }
+    }
     namespace 'com.hdvideo.allformats.player'
     compileSdk 34
 
@@ -10,9 +18,10 @@ android {
         applicationId "com.hdvideo.allformats.player"
         minSdk 24
         targetSdk 34
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "1.2"
         setProperty("archivesBaseName", "HD_Video_Player_All_Formats_" + versionCode + "(" + versionName + ")")
+        signingConfig signingConfigs.release
 
     }
 

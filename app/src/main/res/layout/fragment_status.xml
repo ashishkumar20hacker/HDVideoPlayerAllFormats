@@ -10,7 +10,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="?actionBarSize"
-        android:layout_marginTop="@dimen/_20sdp"
+        android:layout_marginTop="@dimen/_25sdp"
         android:fontFamily="@font/poppins"
         android:gravity="center"
         android:text="@string/wa_status"
@@ -74,6 +74,7 @@
             android:layout_marginHorizontal="@dimen/_5sdp"
             android:layout_marginTop="@dimen/_5sdp"
             android:paddingBottom="@dimen/_85sdp"
+            android:clipToPadding="false"
             android:visibility="gone"/>
 
         <TextView
@@ -83,7 +84,7 @@
             android:layout_marginHorizontal="@dimen/_10sdp"
             android:fontFamily="@font/poppins"
             android:drawableTop="@drawable/video"
-            android:layout_marginTop="@dimen/_150sdp"
+            android:layout_marginTop="@dimen/_135sdp"
             android:gravity="center"
             android:text="@string/status_not_available"
             android:textColor="#80FFFFFF"
@@ -97,6 +98,7 @@
             android:layout_marginHorizontal="@dimen/_5sdp"
             android:layout_marginTop="@dimen/_5sdp"
             android:paddingBottom="@dimen/_85sdp"
+            android:clipToPadding="false"
             android:visibility="gone"/>
 
         <TextView
@@ -106,7 +108,7 @@
             android:layout_marginHorizontal="@dimen/_10sdp"
             android:fontFamily="@font/poppins"
             android:drawableTop="@drawable/video"
-            android:layout_marginTop="@dimen/_150sdp"
+            android:layout_marginTop="@dimen/_135sdp"
             android:gravity="center"
             android:visibility="gone"
             android:text="@string/no_videos_here"

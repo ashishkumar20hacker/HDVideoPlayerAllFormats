@@ -1,6 +1,7 @@
 package com.hdvideo.allformats.player.Adapter;
 
 import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainAudioPlayerInfoList;
+import static com.hdvideo.allformats.player.Activity.DashboardActivity.mainPos;
 import static com.hdvideo.allformats.player.Extras.Constants.SELECTED_MUSIC_POSITION;
 import static com.hdvideo.allformats.player.Extras.Utils.getArtistName;
 
@@ -130,6 +131,8 @@ public class MoreMusicAdapter extends RecyclerView.Adapter<MoreMusicAdapter.View
         holder.binding.more.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mainPos = position;
+                mainAudioPlayerInfoList = videosInFolder;
                 moreListener.onMoreClick(videosInFolder.get(position).getId(),videosInFolder.get(position).getName(),videosInFolder.get(position).getPath(), String.valueOf(videosInFolder.get(position).getSizeInMB()),holder.binding.more);
             }
         });
