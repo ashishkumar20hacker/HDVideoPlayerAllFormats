@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.adsmodule.api.adsModule.utils.AdUtils;
 import com.bumptech.glide.Glide;
 import com.hdvideo.allformats.player.Extras.Constants;
 import com.hdvideo.allformats.player.Extras.Utils;
@@ -46,8 +47,10 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.ViewHolder
         holder.binding.downloadBt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Utils.copyFileInSavedDir(activity, jpast.getFilePath(), isWApp);
-                Toast.makeText(activity, "Saved successfully!", Toast.LENGTH_LONG).show();
+                AdUtils.showRewardedAd(activity, isLoaded -> {
+                    Utils.copyFileInSavedDir(activity, jpast.getFilePath(), isWApp);
+                    Toast.makeText(activity, "Saved successfully!", Toast.LENGTH_LONG).show();
+                });
             }
         });
 

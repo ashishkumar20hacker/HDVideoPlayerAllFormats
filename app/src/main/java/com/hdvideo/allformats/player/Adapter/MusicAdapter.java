@@ -8,6 +8,7 @@ import static com.hdvideo.allformats.player.Extras.Utils.formatFileSize;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.adsmodule.api.adsModule.enums.NativeAdType;
 import com.bumptech.glide.Glide;
 import com.hdvideo.allformats.player.Activity.MusicPlayerActivity;
 import com.hdvideo.allformats.player.Activity.VideoPlayerActivity;
@@ -50,6 +52,15 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.ViewHolder> 
     public void onBindViewHolder(@NonNull MusicAdapter.ViewHolder holder, int position) {
         holder.binding.name.setText(videosInFolder.get(position).getName());
         holder.binding.size.setText(formatFileSize(videosInFolder.get(position).getSizeInMB()));
+        String val = String.valueOf(position);
+        if (val.endsWith("4") || val.endsWith("9")) {
+            Log.e("onBindViewHolder: ", position + "   " + val + "   "+val.endsWith("4")+ "  "+val.endsWith("9"));
+            holder.binding.nativeads.setVisibility(View.VISIBLE);
+            holder.binding.nativeads.checkAndLoadAd(true, activity, NativeAdType.MEDIUM, null);
+        } else {
+            holder.binding.nativeads.setVisibility(View.GONE);
+            holder.binding.nativeads.checkAndLoadAd(false, activity, NativeAdType.MEDIUM, null);
+        }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

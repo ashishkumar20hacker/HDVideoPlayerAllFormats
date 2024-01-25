@@ -2,8 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
-    
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
     <com.google.android.material.card.MaterialCardView
         android:layout_width="@dimen/_90sdp"
         android:layout_height="@dimen/_60sdp"
@@ -65,5 +71,15 @@
         android:src="@drawable/more"
         android:padding="@dimen/_15sdp"
         android:layout_gravity="center"/>
+
+</LinearLayout>
+
+    <com.adsmodule.api.adsModule.views.NativeRecyclerView
+        android:id="@+id/nativeads"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:adType="FULL"
+        app:borderColor="@color/white"
+        android:layout_margin="@dimen/_5sdp"/>
 
 </LinearLayout>

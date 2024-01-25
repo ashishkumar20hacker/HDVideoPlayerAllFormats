@@ -29,6 +29,7 @@ import com.google.android.material.card.MaterialCardView;
 import com.hdvideo.allformats.player.Activity.ResultActivity;
 import com.hdvideo.allformats.player.Adapter.PlayListAdapter;
 import com.hdvideo.allformats.player.Adapter.VideoAdapter;
+import com.hdvideo.allformats.player.Adapter.VideoFoldersAdapter;
 import com.hdvideo.allformats.player.Extras.AppAsyncTask;
 import com.hdvideo.allformats.player.Extras.AppInterfaces;
 import com.hdvideo.allformats.player.Extras.SharePreferences;

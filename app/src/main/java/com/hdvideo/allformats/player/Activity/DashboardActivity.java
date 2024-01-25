@@ -3,6 +3,7 @@ package com.hdvideo.allformats.player.Activity;
 import static com.hdvideo.allformats.player.Extras.Utils.getAudioPlayListName;
 import static com.hdvideo.allformats.player.Extras.Utils.getPlayListName;
 import static com.hdvideo.allformats.player.Extras.Utils.showRateApp;
+import static com.hdvideo.allformats.player.SingletonClasses.LifeCycleOwner.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -22,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.adsmodule.api.adsModule.utils.AdUtils;
 import com.bumptech.glide.Glide;
 import com.hdvideo.allformats.player.Extras.Constants;
 import com.hdvideo.allformats.player.Extras.SharePreferences;
@@ -105,35 +107,35 @@ public class DashboardActivity extends AppCompatActivity {
         binding.statusNav.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switchUi(0);
+                AdUtils.showInterstitialAd(activity,isLoaded -> switchUi(0));
             }
         });
 
         binding.musicNav.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switchUi(1);
+                AdUtils.showInterstitialAd(activity,isLoaded -> switchUi(1));
             }
         });
 
         binding.homeNav.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switchUi(2);
+                AdUtils.showInterstitialAd(activity,isLoaded -> switchUi(2));
             }
         });
 
         binding.themesNav.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switchUi(3);
+                AdUtils.showInterstitialAd(activity,isLoaded -> switchUi(3));
             }
         });
 
         binding.settingsNav.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switchUi(4);
+                AdUtils.showInterstitialAd(activity,isLoaded -> switchUi(4));
             }
         });
 

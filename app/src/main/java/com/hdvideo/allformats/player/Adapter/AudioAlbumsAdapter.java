@@ -1,6 +1,9 @@
 package com.hdvideo.allformats.player.Adapter;
 
+
+import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +11,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.adsmodule.api.adsModule.enums.NativeAdType;
+import com.adsmodule.api.adsModule.views.NativeRecyclerView;
 import com.hdvideo.allformats.player.R;
 
 import java.util.ArrayList;
@@ -20,9 +25,11 @@ public class AudioAlbumsAdapter extends RecyclerView.Adapter<AudioAlbumsAdapter.
     private Map<String, Integer> albumSongsCount;
     private LayoutInflater inflater;
     private OnAlbumClickListener onAlbumClickListener;
+    private Activity activity;
 
-    public AudioAlbumsAdapter(Context context, Map<String, Integer> albumSongsCount, OnAlbumClickListener onAlbumClickListener) {
+    public AudioAlbumsAdapter(Activity context, Map<String, Integer> albumSongsCount, OnAlbumClickListener onAlbumClickListener) {
         this.albumNames = new ArrayList<>(albumSongsCount.keySet());
+        this.activity = context;
         this.albumSongsCount = albumSongsCount;
         this.onAlbumClickListener = onAlbumClickListener;
         this.inflater = LayoutInflater.from(context);
@@ -43,6 +50,17 @@ public class AudioAlbumsAdapter extends RecyclerView.Adapter<AudioAlbumsAdapter.
         holder.albumNameTextView.setText(albumName);
         holder.songCountTextView.setText(songCount + " Songs");
 
+        String val = String.valueOf(position);
+        if (val.endsWith("4") || val.endsWith("9")) {
+            Log.e("onBindViewHolder: ", position + "   " + val + "   "+val.endsWith("4")+ "  "+val.endsWith("9"));
+            holder.nativeads.setVisibility(View.VISIBLE);
+            holder.nativeads.checkAndLoadAd(true, activity, NativeAdType.MEDIUM, null);
+        } else {
+            holder.nativeads.setVisibility(View.GONE);
+            holder.nativeads.checkAndLoadAd(false, activity, NativeAdType.MEDIUM, null);
+        }
+
+
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -59,11 +77,13 @@ public class AudioAlbumsAdapter extends RecyclerView.Adapter<AudioAlbumsAdapter.
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView albumNameTextView;
         TextView songCountTextView;
+        NativeRecyclerView nativeads;
 
         public ViewHolder(View itemView) {
             super(itemView);
             albumNameTextView = itemView.findViewById(R.id.album_name_textview);
             songCountTextView = itemView.findViewById(R.id.song_count_textview);
+            nativeads = itemView.findViewById(R.id.nativeads);
         }
     }
 
